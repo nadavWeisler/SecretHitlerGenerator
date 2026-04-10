@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secret Hitler – Role Generator</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Secret Hitler</h1>
+      <p class="subtitle">Role Generator</p>
+    </header>
+
+    <main>
+      <!-- Step 1 – Add players -->
+      <section id="setup-section" class="card-panel">
+        <h2>Add Players</h2>
+        <p class="hint">Enter 5 – 10 player names, then click <strong>Generate Roles</strong>.</p>
+
+        <form id="player-form" autocomplete="off">
+          <div class="input-row">
+            <input
+              type="text"
+              id="player-input"
+              placeholder="Player name…"
+              maxlength="30"
+              aria-label="Player name"
+            />
+            <button type="submit" id="add-btn" class="btn btn-secondary">Add</button>
+          </div>
+        </form>
+
+        <ul id="player-list" aria-label="Player list"></ul>
+
+        <p id="player-count" class="player-count">0 / 10 players</p>
+
+        <button id="generate-btn" class="btn btn-primary" disabled>Generate Roles</button>
+      </section>
+
+      <!-- Step 2 – Role cards -->
+      <section id="results-section" class="card-panel hidden">
+        <h2>Role Cards</h2>
+        <p class="hint">
+          Pass the device to each player. Tap your card to reveal your role privately, then tap
+          again to hide it before passing on.
+        </p>
+
+        <div id="role-cards" class="role-grid"></div>
+
+        <button id="restart-btn" class="btn btn-secondary" style="margin-top: 2rem">
+          ↩ Start Over
+        </button>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Based on the
+        <a href="https://www.secrethitler.com/" target="_blank" rel="noopener noreferrer"
+          >Secret Hitler</a
+        >
+        board game by Goat, Wolf &amp; Cabbage.
+      </p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
