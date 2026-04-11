@@ -35,3 +35,22 @@ A lightweight, single-page web app that randomly assigns secret roles to players
 | `index.html`| App shell and markup                 |
 | `style.css` | Dark, themed styles                  |
 | `script.js` | Role logic and DOM interactions      |
+
+## Development
+
+### Running tests
+
+Pure game-logic is covered by [Jest](https://jestjs.io/) unit tests:
+
+```bash
+npm install   # install dev-dependencies (Jest)
+npm test      # run all tests with coverage report
+```
+
+### CI / CD
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pull-request:
+
+1. Checks out the code
+2. Installs Node.js 20 and dependencies via `npm ci`
+3. Runs `npm test` (Jest with coverage)

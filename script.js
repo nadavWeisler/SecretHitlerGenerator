@@ -1,61 +1,12 @@
 /**
  * Secret Hitler – Role Generator
- * script.js
+ * script.js  –  DOM interaction layer.
  *
- * Role distribution (official rules):
- *   Players |  Liberals | Fascists | Hitler
- *   --------|-----------|----------|-------
- *      5    |     3     |    1     |   1
- *      6    |     4     |    1     |   1
- *      7    |     4     |    2     |   1
- *      8    |     5     |    2     |   1
- *      9    |     5     |    3     |   1
- *     10    |     6     |    3     |   1
+ * Requires lib.js to be loaded first (provides MIN_PLAYERS, MAX_PLAYERS,
+ * ROLES, ROLE_META, shuffle, buildDeck, escapeHtml as globals).
  */
 
 'use strict';
-
-// ── Constants ────────────────────────────────────────────────────────────────
-
-const MIN_PLAYERS = 5;
-const MAX_PLAYERS = 10;
-
-/** Role distribution indexed by player count (index 0 unused). */
-const ROLE_TABLE = {
-  5:  { liberals: 3, fascists: 1 },
-  6:  { liberals: 4, fascists: 1 },
-  7:  { liberals: 4, fascists: 2 },
-  8:  { liberals: 5, fascists: 2 },
-  9:  { liberals: 5, fascists: 3 },
-  10: { liberals: 6, fascists: 3 },
-};
-
-const ROLES = {
-  LIBERAL: 'liberal',
-  FASCIST: 'fascist',
-  HITLER:  'hitler',
-};
-
-const ROLE_META = {
-  [ROLES.LIBERAL]: {
-    label:   'Liberal',
-    icon:    '🕊️',
-    desc:    'Enact 5 Liberal policies or assassinate Hitler to win.',
-    cssClass: 'liberal',
-  },
-  [ROLES.FASCIST]: {
-    label:   'Fascist',
-    icon:    '⚡',
-    desc:    'Enact 6 Fascist policies or elect Hitler Chancellor to win.',
-    cssClass: 'fascist',
-  },
-  [ROLES.HITLER]: {
-    label:   'Hitler',
-    icon:    '💀',
-    desc:    'Appear innocent. Get elected Chancellor after 3 Fascist policies to win.',
-    cssClass: 'hitler',
-  },
-};
 
 // ── State ────────────────────────────────────────────────────────────────────
 
@@ -74,51 +25,6 @@ const setupSection   = document.getElementById('setup-section');
 const resultsSection = document.getElementById('results-section');
 const roleCardsEl    = document.getElementById('role-cards');
 const restartBtn     = document.getElementById('restart-btn');
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Shuffle an array in-place using the Fisher-Yates algorithm.
- * @template T
- * @param {T[]} arr
- * @returns {T[]}
- */
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-/**
- * Build the role deck for the given player count.
- * @param {number} count
- * @returns {string[]} shuffled array of role strings
- */
-function buildDeck(count) {
-  const { liberals, fascists } = ROLE_TABLE[count];
-  const deck = [
-    ...Array(liberals).fill(ROLES.LIBERAL),
-    ...Array(fascists).fill(ROLES.FASCIST),
-    ROLES.HITLER,
-  ];
-  return shuffle(deck);
-}
-
-/**
- * Escape HTML to prevent XSS when inserting player names.
- * @param {string} str
- * @returns {string}
- */
-function escapeHtml(str) {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
 
 // ── UI helpers ───────────────────────────────────────────────────────────────
 
