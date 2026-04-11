@@ -13,7 +13,12 @@
 /** @type {string[]} */
 let players = [];
 
-/** @type {Array<{name: string, role: string}>} Last generated player-role pairings. */
+/**
+ * Stores the most-recently generated player-role pairings.
+ * Populated by the Generate button handler; consumed by the Print button
+ * handler to build the printable card layout.
+ * @type {Array<{name: string, role: string}>}
+ */
 let currentPairs = [];
 
 /** @type {{ liberal: string|null, fascist: string|null, hitler: string|null }} */
@@ -187,10 +192,10 @@ function buildPrintCardEl(cardData) {
   roleDiv.textContent = cardData.label;
 
   let mediaEl;
-  if (cardData.imageUrl) {
+  if (cardData.imageUrl && cardData.imageUrl.startsWith('data:image/')) {
     mediaEl = document.createElement('img');
     mediaEl.className = 'print-card-img';
-    mediaEl.src = cardData.imageUrl; // data-URI from FileReader – safe as src
+    mediaEl.src = cardData.imageUrl; // validated data-URI from FileReader
     mediaEl.alt = '';
   } else {
     mediaEl = document.createElement('span');
