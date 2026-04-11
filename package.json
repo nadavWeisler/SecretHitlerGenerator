@@ -1,0 +1,11 @@
+{
+  "name": "secret-hitler-generator",
+  "version": "1.0.0",
+  "description": "Web app for generating custom Secret Hitler game roles",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
