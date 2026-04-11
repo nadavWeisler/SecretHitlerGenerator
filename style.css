@@ -606,3 +606,223 @@ footer a:hover {
     height: 180px;
   }
 }
+
+/* ---------- Mode selection ---------- */
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.mode-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: #120800;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.4rem 1rem 1rem;
+  cursor: pointer;
+  text-align: center;
+  transition: background var(--transition), border-color var(--transition), transform 0.1s;
+  color: var(--color-text);
+}
+
+.mode-card:hover {
+  background: #1e0c00;
+  border-color: var(--color-gold);
+  transform: translateY(-2px);
+}
+
+.mode-card:active {
+  transform: scale(0.98);
+}
+
+.mode-card-featured {
+  border-color: var(--color-gold);
+  background: linear-gradient(160deg, #2c1500, #120800);
+}
+
+.mode-badge {
+  position: absolute;
+  top: -0.55rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-gold);
+  color: #1a0a00;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+}
+
+.mode-icon {
+  font-size: 2.2rem;
+}
+
+.mode-title {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--color-gold);
+}
+
+.mode-desc {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  line-height: 1.45;
+}
+
+/* ---------- Section header with back button ---------- */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.section-header h2 {
+  margin-bottom: 0;
+}
+
+.btn-back {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+  white-space: nowrap;
+}
+
+.btn-back:hover {
+  color: var(--color-gold);
+  border-color: var(--color-gold);
+}
+
+/* ---------- Step headings ---------- */
+.step-heading {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--color-gold);
+  margin-bottom: 0.4rem;
+}
+
+/* ---------- Custom role form row ---------- */
+.custom-role-input-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.icon-input {
+  flex: 0 0 3.5rem;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.count-input {
+  flex: 0 0 4rem;
+  text-align: center;
+}
+
+/* ---------- Custom role list ---------- */
+.custom-role-list {
+  list-style: none;
+  margin-top: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.custom-role-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: #120800;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.8rem;
+  font-size: 0.92rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.custom-role-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.custom-role-list .role-icon-col {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.custom-role-list .role-name-col {
+  flex: 1;
+  font-weight: 600;
+}
+
+.custom-role-list .role-count-badge {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.5rem;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+/* ---------- Custom role colour palette (5 colours, cycle) ---------- */
+/* Used on screen role cards (.role-back.custom-N) and print cards (.print-card.custom-N) */
+
+/* 0 = blue */
+.role-back.custom-0 { background: linear-gradient(160deg, #1a3a5c, #0d1f33); border-color: #4a8fd4; }
+.role-back.custom-0 .role-label { color: #7bc3ff; }
+.custom-swatch-0 { background: #4a8fd4; }
+
+/* 1 = red */
+.role-back.custom-1 { background: linear-gradient(160deg, #5c1a1a, #330d0d); border-color: #c0392b; }
+.role-back.custom-1 .role-label { color: #ff8080; }
+.custom-swatch-1 { background: #c0392b; }
+
+/* 2 = green */
+.role-back.custom-2 { background: linear-gradient(160deg, #1a4a1a, #0d2a0d); border-color: #27ae60; }
+.role-back.custom-2 .role-label { color: #7fff7f; }
+.custom-swatch-2 { background: #27ae60; }
+
+/* 3 = purple */
+.role-back.custom-3 { background: linear-gradient(160deg, #3a1a5c, #1f0d33); border-color: #8e44ad; }
+.role-back.custom-3 .role-label { color: #cc99ff; }
+.custom-swatch-3 { background: #8e44ad; }
+
+/* 4 = amber */
+.role-back.custom-4 { background: linear-gradient(160deg, #5c3a1a, #33200d); border-color: #e67e22; }
+.role-back.custom-4 .role-label { color: #ffaa55; }
+.custom-swatch-4 { background: #e67e22; }
+
+/* ---------- Print colours for custom roles ---------- */
+@media print {
+  .print-card.custom-0 { background: #f0f8ff; border-color: #3a7abf; }
+  .print-card.custom-0 .print-card-role { color: #1a4a80; }
+
+  .print-card.custom-1 { background: #fff0f0; border-color: #c0392b; }
+  .print-card.custom-1 .print-card-role { color: #8b0000; }
+
+  .print-card.custom-2 { background: #f0fff0; border-color: #27ae60; }
+  .print-card.custom-2 .print-card-role { color: #1a5c1a; }
+
+  .print-card.custom-3 { background: #f8f0ff; border-color: #8e44ad; }
+  .print-card.custom-3 .print-card-role { color: #5a1a8b; }
+
+  .print-card.custom-4 { background: #fff8f0; border-color: #e67e22; }
+  .print-card.custom-4 .print-card-role { color: #7a4000; }
+}

@@ -8,6 +8,7 @@ const {
   ROLE_META,
   shuffle,
   buildDeck,
+  buildCustomDeck,
   escapeHtml,
   buildPrintCards,
 } = require('../lib');
@@ -245,5 +246,91 @@ describe('buildPrintCards()', () => {
       customMeta,
     );
     expect(fascistCard.label).toBe(ROLE_META[ROLES.FASCIST].label);
+  });
+
+  test('custom baseMeta overrides ROLE_META lookup', () => {
+    const customBase = {
+      'hero': { label: 'Hero', icon: '⚔️', desc: 'Save the day.', cssClass: 'custom-0' },
+    };
+    const [card] = buildPrintCards([{ name: 'Alice', role: 'hero' }], {}, customBase);
+    expect(card.label).toBe('Hero');
+    expect(card.icon).toBe('⚔️');
+    expect(card.cssClass).toBe('custom-0');
+  });
+
+  test('falls back gracefully when role not in baseMeta', () => {
+    const [card] = buildPrintCards([{ name: 'Alice', role: 'unknown' }], {}, {});
+    expect(card.label).toBe('unknown');
+    expect(card.icon).toBe('🎭');
+    expect(card.cssClass).toBe('custom-0');
+    expect(card.imageUrl).toBeNull();
+  });
+});
+
+// ── buildCustomDeck ───────────────────────────────────────────────────────────
+
+describe('buildCustomDeck()', () => {
+  test('returns empty array for empty roleDefs', () => {
+    expect(buildCustomDeck([])).toEqual([]);
+  });
+
+  test('returns correct total number of cards', () => {
+    const defs = [
+      { key: 'hero',    count: 3 },
+      { key: 'villain', count: 2 },
+    ];
+    expect(buildCustomDeck(defs)).toHaveLength(5);
+  });
+
+  test('returns correct count per role key', () => {
+    const defs = [
+      { key: 'hero',    count: 3 },
+      { key: 'villain', count: 2 },
+    ];
+    const deck = buildCustomDeck(defs);
+    expect(deck.filter((r) => r === 'hero')).toHaveLength(3);
+    expect(deck.filter((r) => r === 'villain')).toHaveLength(2);
+  });
+
+  test('returns an array', () => {
+    expect(Array.isArray(buildCustomDeck([{ key: 'spy', count: 4 }]))).toBe(true);
+  });
+
+  test('only contains keys from the role definitions', () => {
+    const defs = [
+      { key: 'alpha', count: 2 },
+      { key: 'beta',  count: 1 },
+    ];
+    const validKeys = new Set(['alpha', 'beta']);
+    buildCustomDeck(defs).forEach((key) => expect(validKeys).toContain(key));
+  });
+
+  test('works with a single role', () => {
+    const deck = buildCustomDeck([{ key: 'solo', count: 3 }]);
+    expect(deck).toHaveLength(3);
+    deck.forEach((k) => expect(k).toBe('solo'));
+  });
+
+  test('works with count of 1 for each role', () => {
+    const defs = [
+      { key: 'a', count: 1 },
+      { key: 'b', count: 1 },
+      { key: 'c', count: 1 },
+    ];
+    const deck = buildCustomDeck(defs);
+    expect(deck).toHaveLength(3);
+    expect(new Set(deck).size).toBe(3);
+  });
+
+  test('is shuffled (produces different orderings over many runs)', () => {
+    const defs = [
+      { key: 'x', count: 3 },
+      { key: 'y', count: 3 },
+    ];
+    const results = new Set();
+    for (let i = 0; i < 100; i++) {
+      results.add(buildCustomDeck(defs).join(','));
+    }
+    expect(results.size).toBeGreaterThan(1);
   });
 });
