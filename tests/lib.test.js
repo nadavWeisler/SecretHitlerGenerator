@@ -9,6 +9,7 @@ const {
   shuffle,
   buildDeck,
   escapeHtml,
+  buildPrintCards,
 } = require('../lib');
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -158,5 +159,91 @@ describe('escapeHtml()', () => {
 
   test('handles empty string', () => {
     expect(escapeHtml('')).toBe('');
+  });
+});
+
+// ── buildPrintCards ───────────────────────────────────────────────────────────
+
+describe('buildPrintCards()', () => {
+  const SAMPLE_PAIRS = [
+    { name: 'Alice', role: ROLES.LIBERAL },
+    { name: 'Bob',   role: ROLES.FASCIST },
+    { name: 'Carol', role: ROLES.HITLER  },
+  ];
+
+  test('returns one entry per pair', () => {
+    const cards = buildPrintCards(SAMPLE_PAIRS);
+    expect(cards).toHaveLength(3);
+  });
+
+  test('each card has required fields', () => {
+    buildPrintCards(SAMPLE_PAIRS).forEach((card) => {
+      expect(card).toHaveProperty('playerName', expect.any(String));
+      expect(card).toHaveProperty('role',       expect.any(String));
+      expect(card).toHaveProperty('label',      expect.any(String));
+      expect(card).toHaveProperty('icon',       expect.any(String));
+      expect(card).toHaveProperty('desc',       expect.any(String));
+      expect(card).toHaveProperty('cssClass',   expect.any(String));
+      expect(card).toHaveProperty('imageUrl');
+    });
+  });
+
+  test('uses default ROLE_META values when no customMeta is given', () => {
+    const [liberal] = buildPrintCards([{ name: 'Alice', role: ROLES.LIBERAL }]);
+    expect(liberal.label).toBe(ROLE_META[ROLES.LIBERAL].label);
+    expect(liberal.imageUrl).toBeNull();
+  });
+
+  test('custom label overrides default', () => {
+    const customMeta = { [ROLES.LIBERAL]: { label: 'Resistance Fighter' } };
+    const [card] = buildPrintCards([{ name: 'Alice', role: ROLES.LIBERAL }], customMeta);
+    expect(card.label).toBe('Resistance Fighter');
+  });
+
+  test('custom label is trimmed', () => {
+    const customMeta = { [ROLES.FASCIST]: { label: '  Spy  ' } };
+    const [card] = buildPrintCards([{ name: 'Bob', role: ROLES.FASCIST }], customMeta);
+    expect(card.label).toBe('Spy');
+  });
+
+  test('empty custom label falls back to default', () => {
+    const customMeta = { [ROLES.HITLER]: { label: '   ' } };
+    const [card] = buildPrintCards([{ name: 'Carol', role: ROLES.HITLER }], customMeta);
+    expect(card.label).toBe(ROLE_META[ROLES.HITLER].label);
+  });
+
+  test('custom imageUrl is preserved', () => {
+    const url = 'data:image/png;base64,abc123';
+    const customMeta = { [ROLES.LIBERAL]: { imageUrl: url } };
+    const [card] = buildPrintCards([{ name: 'Alice', role: ROLES.LIBERAL }], customMeta);
+    expect(card.imageUrl).toBe(url);
+  });
+
+  test('imageUrl is null when not provided', () => {
+    const [card] = buildPrintCards([{ name: 'Alice', role: ROLES.LIBERAL }], {});
+    expect(card.imageUrl).toBeNull();
+  });
+
+  test('playerName and role pass through unchanged', () => {
+    const [card] = buildPrintCards([{ name: 'Alice', role: ROLES.LIBERAL }]);
+    expect(card.playerName).toBe('Alice');
+    expect(card.role).toBe(ROLES.LIBERAL);
+  });
+
+  test('works with no customMeta argument', () => {
+    expect(() => buildPrintCards(SAMPLE_PAIRS)).not.toThrow();
+  });
+
+  test('works with empty pairs array', () => {
+    expect(buildPrintCards([])).toEqual([]);
+  });
+
+  test('customMeta for one role does not affect others', () => {
+    const customMeta = { [ROLES.LIBERAL]: { label: 'Custom' } };
+    const [, fascistCard] = buildPrintCards(
+      [{ name: 'Alice', role: ROLES.LIBERAL }, { name: 'Bob', role: ROLES.FASCIST }],
+      customMeta,
+    );
+    expect(fascistCard.label).toBe(ROLE_META[ROLES.FASCIST].label);
   });
 });

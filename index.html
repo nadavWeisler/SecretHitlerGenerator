@@ -35,6 +35,59 @@
 
         <p id="player-count" class="player-count">0 / 10 players</p>
 
+        <!-- Optional role customisation -->
+        <details id="customize-panel" class="customize-panel">
+          <summary class="customize-summary">⚙ Customize Role Cards <span class="customize-hint">(optional)</span></summary>
+          <div class="customize-body">
+            <p class="hint">Override the display name and image for each role type.</p>
+            <div class="customize-grid">
+
+              <div class="customize-role">
+                <span class="customize-role-icon">🕊️</span>
+                <strong class="customize-role-label liberal-label">Liberal</strong>
+                <label class="customize-field-label">
+                  Name
+                  <input type="text" id="custom-label-liberal" placeholder="Liberal" maxlength="40" />
+                </label>
+                <label class="customize-field-label">
+                  Image
+                  <input type="file" id="custom-img-liberal" accept="image/*" class="file-input" />
+                </label>
+                <img id="custom-preview-liberal" class="custom-preview hidden" alt="Liberal role image preview" />
+              </div>
+
+              <div class="customize-role">
+                <span class="customize-role-icon">⚡</span>
+                <strong class="customize-role-label fascist-label">Fascist</strong>
+                <label class="customize-field-label">
+                  Name
+                  <input type="text" id="custom-label-fascist" placeholder="Fascist" maxlength="40" />
+                </label>
+                <label class="customize-field-label">
+                  Image
+                  <input type="file" id="custom-img-fascist" accept="image/*" class="file-input" />
+                </label>
+                <img id="custom-preview-fascist" class="custom-preview hidden" alt="Fascist role image preview" />
+              </div>
+
+              <div class="customize-role">
+                <span class="customize-role-icon">💀</span>
+                <strong class="customize-role-label hitler-label">Hitler</strong>
+                <label class="customize-field-label">
+                  Name
+                  <input type="text" id="custom-label-hitler" placeholder="Hitler" maxlength="40" />
+                </label>
+                <label class="customize-field-label">
+                  Image
+                  <input type="file" id="custom-img-hitler" accept="image/*" class="file-input" />
+                </label>
+                <img id="custom-preview-hitler" class="custom-preview hidden" alt="Hitler role image preview" />
+              </div>
+
+            </div>
+          </div>
+        </details>
+
         <button id="generate-btn" class="btn btn-primary" disabled>Generate Roles</button>
       </section>
 
@@ -48,9 +101,10 @@
 
         <div id="role-cards" class="role-grid"></div>
 
-        <button id="restart-btn" class="btn btn-secondary" style="margin-top: 2rem">
-          ↩ Start Over
-        </button>
+        <div class="results-actions">
+          <button id="print-btn" class="btn btn-secondary">🖨 Print Cards</button>
+          <button id="restart-btn" class="btn btn-secondary">↩ Start Over</button>
+        </div>
       </section>
     </main>
 
@@ -66,5 +120,11 @@
 
     <script src="lib.js"></script>
     <script src="script.js"></script>
+
+    <!-- Print layout: hidden on screen, revealed by @media print -->
+    <div id="print-section">
+      <div class="print-page-title">Secret Hitler – Role Cards</div>
+      <div id="print-cards" class="print-grid"></div>
+    </div>
   </body>
 </html>
