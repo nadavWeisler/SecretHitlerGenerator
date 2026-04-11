@@ -110,7 +110,7 @@ Or simply [download the ZIP](https://github.com/nadavWeisler/SecretHitlerGenerat
 
 ### Running tests
 
-Pure game-logic is covered by [Jest](https://jestjs.io/) unit tests with 100 % coverage:
+Pure game-logic is covered by [Jest](https://jestjs.io/) unit tests with 100% coverage:
 
 ```bash
 npm install   # install dev-dependencies (Jest)
