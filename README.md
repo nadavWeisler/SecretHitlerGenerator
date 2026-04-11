@@ -49,8 +49,22 @@ npm test      # run all tests with coverage report
 
 ### CI / CD
 
-A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pull-request:
+Two GitHub Actions workflows keep the project healthy:
 
+| Workflow | File | Trigger |
+|----------|------|---------|
+| **CI** – runs unit tests | `.github/workflows/ci.yml` | Every push / pull-request |
+| **Deploy** – publishes to GitHub Pages | `.github/workflows/deploy.yml` | Push to `main` |
+
+**CI** steps:
 1. Checks out the code
 2. Installs Node.js 20 and dependencies via `npm ci`
 3. Runs `npm test` (Jest with coverage)
+
+**Deploy** steps:
+1. Checks out the code
+2. Uploads the repository root as a Pages artifact
+3. Deploys to GitHub Pages
+
+> **Enabling GitHub Pages:** In the repository **Settings → Pages**, set the source to
+> **GitHub Actions** so the deploy workflow has permission to publish.
