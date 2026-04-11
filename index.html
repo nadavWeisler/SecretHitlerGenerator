@@ -37,7 +37,7 @@
       <!-- ── Step 1 (Standard): Add players ───────────────────────────────── -->
       <section id="setup-section" class="card-panel hidden">
         <div class="section-header">
-          <button id="standard-back-btn" class="btn btn-back">&#8592; Back</button>
+          <button id="standard-back-btn" class="btn btn-back">← Back</button>
           <h2>Secret Hitler – Role Generator</h2>
         </div>
         <p class="hint">Enter 5 – 10 player names, then click <strong>Generate Roles</strong>.</p>
@@ -61,13 +61,13 @@
 
         <!-- Optional role customisation -->
         <details id="customize-panel" class="customize-panel">
-          <summary class="customize-summary">&#9881; Customize Role Cards <span class="customize-hint">(optional)</span></summary>
+          <summary class="customize-summary">⚙ Customize Role Cards <span class="customize-hint">(optional)</span></summary>
           <div class="customize-body">
             <p class="hint">Override the display name and image for each role type.</p>
             <div class="customize-grid">
 
               <div class="customize-role">
-                <span class="customize-role-icon">&#128602;</span>
+                <span class="customize-role-icon">🕊️</span>
                 <strong class="customize-role-label liberal-label">Liberal</strong>
                 <label class="customize-field-label">
                   Name
@@ -81,7 +81,7 @@
               </div>
 
               <div class="customize-role">
-                <span class="customize-role-icon">&#9889;</span>
+                <span class="customize-role-icon">⚡</span>
                 <strong class="customize-role-label fascist-label">Fascist</strong>
                 <label class="customize-field-label">
                   Name
@@ -95,7 +95,7 @@
               </div>
 
               <div class="customize-role">
-                <span class="customize-role-icon">&#128128;</span>
+                <span class="customize-role-icon">💀</span>
                 <strong class="customize-role-label hitler-label">Hitler</strong>
                 <label class="customize-field-label">
                   Name
@@ -118,12 +118,12 @@
       <!-- ── Custom Game Builder ───────────────────────────────────────────── -->
       <section id="custom-game-section" class="card-panel hidden">
         <div class="section-header">
-          <button id="custom-back-btn" class="btn btn-back">&#8592; Back</button>
+          <button id="custom-back-btn" class="btn btn-back">← Back</button>
           <h2>Custom Game Builder</h2>
         </div>
 
         <!-- Step 1: Define roles -->
-        <h3 class="step-heading">Step 1 &#8211; Define Roles</h3>
+        <h3 class="step-heading">Step 1 – Define Roles</h3>
         <p class="hint">Add the roles for your game. Each role needs a name and how many players receive it.</p>
 
         <form id="custom-role-form" autocomplete="off">
@@ -131,7 +131,7 @@
             <input
               type="text"
               id="custom-role-icon-input"
-              placeholder="&#127917;"
+              placeholder="🎭"
               maxlength="4"
               aria-label="Role icon (emoji)"
               class="icon-input"
@@ -169,7 +169,7 @@
         <p id="custom-roles-summary" class="player-count">0 roles defined &middot; 0 players needed</p>
 
         <!-- Step 2: Add players -->
-        <h3 class="step-heading" style="margin-top:1.4rem">Step 2 &#8211; Add Players</h3>
+        <h3 class="step-heading" style="margin-top:1.4rem">Step 2 – Add Players</h3>
         <p class="hint">
           Add exactly <strong><span id="custom-needed-count">0</span> players</strong> to match your total role count.
         </p>
@@ -204,8 +204,8 @@
         <div id="role-cards" class="role-grid"></div>
 
         <div class="results-actions">
-          <button id="print-btn" class="btn btn-secondary">&#128424; Print Cards</button>
-          <button id="restart-btn" class="btn btn-secondary">&#8617; Start Over</button>
+          <button id="print-btn" class="btn btn-secondary">🖨 Print Cards</button>
+          <button id="restart-btn" class="btn btn-secondary">↩ Start Over</button>
         </div>
       </section>
     </main>
@@ -225,7 +225,7 @@
 
     <!-- Print layout: hidden on screen, revealed by @media print -->
     <div id="print-section">
-      <div class="print-page-title">Secret Hitler &#8211; Role Cards</div>
+      <div class="print-page-title">Secret Hitler – Role Cards</div>
       <div id="print-cards" class="print-grid"></div>
     </div>
   </body>

@@ -149,7 +149,7 @@ function renderPlayerList() {
     li.innerHTML = `
       <span class="player-number">${index + 1}.</span>
       <span class="player-name">${escapeHtml(name)}</span>
-      <button class="remove-btn" aria-label="Remove ${escapeHtml(name)}" data-index="${index}">&#10005;</button>
+      <button class="remove-btn" aria-label="Remove ${escapeHtml(name)}" data-index="${index}">✕</button>
     `;
     playerListEl.appendChild(li);
   });
@@ -177,7 +177,7 @@ function buildRoleCard(playerName, role, metaOverride) {
   card.innerHTML = `
     <div class="role-card-inner">
       <div class="role-front">
-        <span class="card-icon">&#127183;</span>
+        <span class="card-icon">🃏</span>
         <span class="card-player-name">${escapeHtml(playerName)}</span>
         <span class="card-tap-hint">Tap to reveal</span>
       </div>
@@ -416,7 +416,7 @@ function renderCustomPlayerList() {
     li.innerHTML = `
       <span class="player-number">${index + 1}.</span>
       <span class="player-name">${escapeHtml(name)}</span>
-      <button class="remove-btn" aria-label="Remove ${escapeHtml(name)}" data-index="${index}">&#10005;</button>
+      <button class="remove-btn" aria-label="Remove ${escapeHtml(name)}" data-index="${index}">✕</button>
     `;
     customPlayerListEl.appendChild(li);
   });
