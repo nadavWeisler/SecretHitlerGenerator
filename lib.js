@@ -105,6 +105,32 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+/**
+ * Merge player-role pairs with optional custom role-metadata overrides.
+ * Returns plain data objects suitable for rendering print cards (no DOM dependency).
+ *
+ * @param {Array<{name: string, role: string}>} pairs     Ordered player-role pairings
+ * @param {Object}                              [customMeta]  Per-role overrides
+ *   customMeta[roleKey] may contain { label?: string, imageUrl?: string }
+ * @returns {Array<{playerName: string, role: string, label: string, icon: string, desc: string, cssClass: string, imageUrl: string|null}>}
+ */
+function buildPrintCards(pairs, customMeta) {
+  const overrides = customMeta || {};
+  return pairs.map(({ name, role }) => {
+    const base   = ROLE_META[role];
+    const custom = overrides[role] || {};
+    return {
+      playerName: name,
+      role,
+      label:    (typeof custom.label === 'string' && custom.label.trim()) ? custom.label.trim() : base.label,
+      icon:     base.icon,
+      desc:     base.desc,
+      cssClass: base.cssClass,
+      imageUrl: custom.imageUrl || null,
+    };
+  });
+}
+
 // ── Module export (Node.js / Jest) / global exposure (browser) ───────────────
 
 /* istanbul ignore next */
@@ -118,5 +144,6 @@ if (typeof module !== 'undefined' && module.exports) {
     shuffle,
     buildDeck,
     escapeHtml,
+    buildPrintCards,
   };
 }

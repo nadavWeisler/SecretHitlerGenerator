@@ -348,6 +348,223 @@ input[type="text"]::placeholder {
   color: #ff4040;
 }
 
+/* ---------- Results actions ---------- */
+.results-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.results-actions .btn {
+  flex: 1;
+  min-width: 130px;
+  text-align: center;
+}
+
+/* ---------- Customization panel ---------- */
+.customize-panel {
+  margin-top: 1.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #120800;
+  overflow: hidden;
+}
+
+.customize-summary {
+  cursor: pointer;
+  color: var(--color-gold);
+  font-size: 0.9rem;
+  padding: 0.6rem 0.8rem;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background var(--transition);
+}
+
+.customize-summary::-webkit-details-marker { display: none; }
+
+.customize-summary:hover {
+  background: #1e0c00;
+}
+
+.customize-hint {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 400;
+}
+
+.customize-body {
+  padding: 0.8rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.customize-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.6rem;
+}
+
+.customize-role {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.customize-role-icon {
+  font-size: 1.6rem;
+  text-align: center;
+}
+
+.customize-role-label {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.liberal-label { color: var(--color-liberal); }
+.fascist-label { color: var(--color-fascist); }
+.hitler-label  { color: #ff4040; }
+
+.customize-field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--color-muted);
+}
+
+.customize-field-label input[type="text"] {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.6rem;
+}
+
+.file-input {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.custom-preview {
+  width: 100%;
+  max-height: 80px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* ---------- Print section (screen: hidden, print: visible) ---------- */
+@media screen {
+  #print-section {
+    display: none;
+  }
+}
+
+/* ---------- @media print ---------- */
+@media print {
+  header,
+  main,
+  footer {
+    display: none !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    display: block;
+  }
+
+  #print-section {
+    display: block;
+  }
+
+  .print-page-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.4rem;
+    text-align: center;
+    margin-bottom: 0.35in;
+    color: #222;
+  }
+
+  .print-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 2.5in);
+    gap: 0.2in;
+    justify-content: center;
+  }
+
+  .print-card {
+    width: 2.5in;
+    height: 3.5in;
+    border: 1px dashed #aaa;
+    border-radius: 6px;
+    padding: 0.18in 0.15in;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.1in;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-card.liberal { background: #f0f8ff; border-color: #3a7abf; }
+  .print-card.fascist { background: #fff0f0; border-color: #c0392b; }
+  .print-card.hitler  { background: #ffe8e8; border-color: #8b0000; }
+
+  .print-card-role {
+    font-family: Georgia, serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+  }
+
+  .print-card.liberal .print-card-role { color: #1a4a80; }
+  .print-card.fascist .print-card-role { color: #8b0000; }
+  .print-card.hitler  .print-card-role { color: #6b0000; }
+
+  .print-card-icon {
+    font-size: 2.4rem;
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  .print-card-img {
+    max-width: 1.8in;
+    max-height: 1.6in;
+    object-fit: contain;
+    flex: 1;
+  }
+
+  .print-card-name {
+    font-family: Georgia, serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: center;
+    border-top: 1px solid #999;
+    padding-top: 0.08in;
+    width: 100%;
+  }
+
+  .print-card-desc {
+    font-size: 0.62rem;
+    text-align: center;
+    color: #444;
+    line-height: 1.35;
+  }
+}
+
 /* ---------- Utility ---------- */
 .hidden {
   display: none !important;
