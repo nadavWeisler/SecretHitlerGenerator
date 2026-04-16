@@ -22,8 +22,8 @@
         <div class="mode-grid">
           <button id="mode-standard-btn" class="mode-card">
             <span class="mode-icon">🎭</span>
-            <strong class="mode-title">Secret Hitler</strong>
-            <span class="mode-desc">Standard role generator for 5 – 10 players using the official role distribution.</span>
+            <strong class="mode-title">Print &amp; Play Wizard</strong>
+            <span class="mode-desc">Create printable Secret Hitler role cards with default text/images and optional customization.</span>
           </button>
           <button id="mode-custom-btn" class="mode-card mode-card-featured">
             <span class="mode-badge">Main</span>
@@ -38,32 +38,36 @@
       <section id="setup-section" class="card-panel hidden">
         <div class="section-header">
           <button id="standard-back-btn" class="btn btn-back">← Back</button>
-          <h2>Secret Hitler – Role Generator</h2>
+          <h2>Print &amp; Play Wizard</h2>
         </div>
-        <p class="hint">Enter 5 – 10 player names, then click <strong>Generate Roles</strong>.</p>
+        <div id="wizard-step-players">
+          <h3 class="step-heading">Step 1 – Add Players</h3>
+          <p class="hint">Enter 5 – 10 player names.</p>
 
-        <form id="player-form" autocomplete="off">
-          <div class="input-row">
-            <input
-              type="text"
-              id="player-input"
-              placeholder="Player name…"
-              maxlength="30"
-              aria-label="Player name"
-            />
-            <button type="submit" id="add-btn" class="btn btn-secondary">Add</button>
-          </div>
-        </form>
+          <form id="player-form" autocomplete="off">
+            <div class="input-row">
+              <input
+                type="text"
+                id="player-input"
+                placeholder="Player name…"
+                maxlength="30"
+                aria-label="Player name"
+              />
+              <button type="submit" id="add-btn" class="btn btn-secondary">Add</button>
+            </div>
+          </form>
 
-        <ul id="player-list" aria-label="Player list"></ul>
+          <ul id="player-list" aria-label="Player list"></ul>
 
-        <p id="player-count" class="player-count">0 / 10 players</p>
+          <p id="player-count" class="player-count">0 / 10 players</p>
+          <button id="standard-next-btn" class="btn btn-primary" disabled>Next: Customize</button>
+        </div>
 
-        <!-- Optional role customisation -->
-        <details id="customize-panel" class="customize-panel">
-          <summary class="customize-summary">⚙ Customize Role Cards <span class="customize-hint">(optional)</span></summary>
+        <div id="wizard-step-customize" class="hidden">
+          <h3 class="step-heading">Step 2 – Customize Cards</h3>
+          <p class="hint">Edit role names or upload role images. Defaults match the original roles.</p>
+
           <div class="customize-body">
-            <p class="hint">Override the display name and image for each role type.</p>
             <div class="customize-grid">
 
               <div class="customize-role">
@@ -110,9 +114,11 @@
 
             </div>
           </div>
-        </details>
-
-        <button id="generate-btn" class="btn btn-primary" disabled>Generate Roles</button>
+          <div class="results-actions">
+            <button id="standard-customize-back-btn" class="btn btn-secondary" type="button">← Back</button>
+            <button id="generate-btn" class="btn btn-primary" disabled>Generate Print &amp; Play Cards</button>
+          </div>
+        </div>
       </section>
 
       <!-- ── Custom Game Builder ───────────────────────────────────────────── -->
@@ -195,7 +201,7 @@
 
       <!-- ── Results: Role cards (shared by both modes) ───────────────────── -->
       <section id="results-section" class="card-panel hidden">
-        <h2>Role Cards</h2>
+        <h2>Role Cards Preview</h2>
         <p class="hint">
           Pass the device to each player. Tap your card to reveal your role privately, then tap
           again to hide it before passing on.
@@ -225,7 +231,7 @@
 
     <!-- Print layout: hidden on screen, revealed by @media print -->
     <div id="print-section">
-      <div class="print-page-title">Secret Hitler – Role Cards</div>
+      <div class="print-page-title">Secret Hitler – Print &amp; Play Role Cards</div>
       <div id="print-cards" class="print-grid"></div>
     </div>
   </body>

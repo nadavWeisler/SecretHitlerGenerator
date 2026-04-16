@@ -362,6 +362,11 @@ input[type="text"]::placeholder {
   text-align: center;
 }
 
+.results-actions .btn-primary {
+  width: auto;
+  margin-top: 0;
+}
+
 /* ---------- Customization panel ---------- */
 .customize-panel {
   margin-top: 1.2rem;
