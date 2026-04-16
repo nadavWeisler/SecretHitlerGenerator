@@ -177,7 +177,7 @@ function updatePlayerCount() {
 function getNextAutoPlayerName(existingPlayers) {
   const existingNames = new Set(existingPlayers.map((playerName) => playerName.toLowerCase()));
   let nextPlayerNumber = 1;
-  while (existingNames.has(`player ${nextPlayerNumber}`)) {
+  while (existingNames.has(`Player ${nextPlayerNumber}`.toLowerCase())) {
     nextPlayerNumber += 1;
   }
   return `Player ${nextPlayerNumber}`;
