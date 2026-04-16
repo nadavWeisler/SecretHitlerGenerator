@@ -464,13 +464,11 @@ function downloadPrintCardsPdf(cards) {
 
 playerForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  const name = getNextAutoPlayerName(players);
-
   if (players.length >= MAX_PLAYERS) return;
+  const name = getNextAutoPlayerName(players);
 
   players.push(name);
   renderPlayerList();
-  playerInput.focus();
 
   addBtn.disabled = players.length >= MAX_PLAYERS;
 });
@@ -646,14 +644,13 @@ customRoleListEl.addEventListener('click', (e) => {
 
 customPlayerForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  const name = getNextAutoPlayerName(customPlayers);
   const total = customTotalRoleCount();
 
   if (customPlayers.length >= total) return;
+  const name = getNextAutoPlayerName(customPlayers);
 
   customPlayers.push(name);
   renderCustomPlayerList();
-  customPlayerInput.focus();
 });
 
 // Delegated remove for custom players
