@@ -1,11 +1,13 @@
-# Secret Hitler – Role Generator
+# Secret Hitler – Print & Play Wizard
 
-A lightweight, single-page web app that randomly assigns secret roles to players for a custom game of [Secret Hitler](https://www.secrethitler.com/).
+A lightweight, single-page web app for generating printable role cards for [Secret Hitler](https://www.secrethitler.com/).
 
 ## Features
 
+- Wizard flow for creating print-and-play cards
 - Add 5–10 players by name
 - Roles are distributed according to the official rules and shuffled randomly
+- Customize role names and role images (defaults are the original role names/icons)
 - Tap a player's card to privately reveal their role, tap again to hide it
 - No server, no build step – just open `index.html` in any modern browser
 
@@ -24,9 +26,10 @@ A lightweight, single-page web app that randomly assigns secret roles to players
 
 1. Clone or download this repository.
 2. Open `index.html` in a web browser (no server required).
-3. Enter each player's name and click **Add** (or press Enter).
-4. Click **Generate Roles** once all players are added.
-5. Pass the device around – each player taps their card to see their role privately, then taps again to hide it before handing back.
+3. Open **Print & Play Wizard**.
+4. Enter each player's name and click **Add** (or press Enter), then click **Next: Customize**.
+5. Optionally customize role names/images, then click **Generate Print & Play Cards**.
+6. Click **Print Cards** to print the generated cards.
 
 ## Files
 

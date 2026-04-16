@@ -56,6 +56,10 @@ const playerInput      = document.getElementById('player-input');
 const addBtn           = document.getElementById('add-btn');
 const playerListEl     = document.getElementById('player-list');
 const playerCountEl    = document.getElementById('player-count');
+const standardStepPlayersEl = document.getElementById('wizard-step-players');
+const standardStepCustomizeEl = document.getElementById('wizard-step-customize');
+const standardNextBtn = document.getElementById('standard-next-btn');
+const standardCustomizeBackBtn = document.getElementById('standard-customize-back-btn');
 const generateBtn      = document.getElementById('generate-btn');
 
 // Standard customisation inputs
@@ -110,10 +114,23 @@ function showModeSection() {
   currentMode = null;
 }
 
+function showStandardWizardStep(step) {
+  const showPlayers = step === 'players';
+  standardStepPlayersEl.classList.toggle('hidden', !showPlayers);
+  standardStepCustomizeEl.classList.toggle('hidden', showPlayers);
+}
+
+function resetStandardCustomizationDefaults() {
+  customLabelInputs.liberal.value = ROLE_META[ROLES.LIBERAL].label;
+  customLabelInputs.fascist.value = ROLE_META[ROLES.FASCIST].label;
+  customLabelInputs.hitler.value = ROLE_META[ROLES.HITLER].label;
+}
+
 modeStandardBtn.addEventListener('click', () => {
   currentMode = 'standard';
   modeSectionEl.classList.add('hidden');
   setupSection.classList.remove('hidden');
+  showStandardWizardStep('players');
   playerInput.focus();
 });
 
@@ -132,6 +149,17 @@ customBackBtn.addEventListener('click', () => {
   showModeSection();
 });
 
+standardNextBtn.addEventListener('click', () => {
+  if (standardNextBtn.disabled) return;
+  showStandardWizardStep('customize');
+  customLabelInputs.liberal.focus();
+});
+
+standardCustomizeBackBtn.addEventListener('click', () => {
+  showStandardWizardStep('players');
+  playerInput.focus();
+});
+
 // ── Standard mode – UI helpers ────────────────────────────────────────────────
 
 function updatePlayerCount() {
@@ -139,6 +167,7 @@ function updatePlayerCount() {
   playerCountEl.textContent = `${n} / ${MAX_PLAYERS} players`;
 
   const ready = n >= MIN_PLAYERS && n <= MAX_PLAYERS;
+  standardNextBtn.disabled = !ready;
   generateBtn.disabled = !ready;
 }
 
@@ -561,6 +590,14 @@ restartBtn.addEventListener('click', () => {
   currentPairs = [];
   playerInput.value = '';
   addBtn.disabled   = false;
+  showStandardWizardStep('players');
+  resetStandardCustomizationDefaults();
+  Object.keys(customImageData).forEach((role) => {
+    customImageData[role] = null;
+    customImgInputs[role].value = '';
+    customImgPreviews[role].src = '';
+    customImgPreviews[role].classList.add('hidden');
+  });
   renderPlayerList();
 
   // Reset custom state
@@ -597,5 +634,7 @@ printBtn.addEventListener('click', () => {
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 updatePlayerCount();
+resetStandardCustomizationDefaults();
+showStandardWizardStep('players');
 renderCustomRoleList();
 renderCustomPlayerList();
