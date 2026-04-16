@@ -43,7 +43,7 @@ https://nadavweisler.github.io/SecretHitlerGenerator/
 3. Open **Print & Play Wizard**.
 4. Enter each player's name and click **Add** (or press Enter), then click **Next: Customize**.
 5. Optionally customize role names/images, then click **Generate Print & Play Cards**.
-6. Click **Print Cards** to print the generated cards.
+6. Click **Download PDF** to save the generated cards as a PDF, or **Print Cards** to print directly.
 
 ## Files
 

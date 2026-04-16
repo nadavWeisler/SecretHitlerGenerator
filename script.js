@@ -102,6 +102,7 @@ const resultsSection = document.getElementById('results-section');
 const roleCardsEl    = document.getElementById('role-cards');
 const restartBtn     = document.getElementById('restart-btn');
 const printBtn       = document.getElementById('print-btn');
+const downloadPdfBtn = document.getElementById('download-pdf-btn');
 const printCardsEl   = document.getElementById('print-cards');
 
 // ── Mode navigation ───────────────────────────────────────────────────────────
@@ -324,6 +325,128 @@ function buildPrintCardEl(cardData) {
 
   article.append(roleDiv, mediaEl, nameDiv, descDiv);
   return article;
+}
+
+/**
+ * Build print-card data for the currently generated result set.
+ * @returns {Array<{ playerName: string, role: string, label: string, icon: string, desc: string, cssClass: string, imageUrl: string|null }>}
+ */
+function buildCurrentPrintCardData() {
+  if (currentMode === 'custom') {
+    const metaMap = buildCustomRoleMetaMap();
+    return buildPrintCards(currentPairs, {}, metaMap);
+  }
+  return buildPrintCards(currentPairs, getCustomMeta());
+}
+
+/**
+ * Render print cards into the hidden print section.
+ * @param {Array<{ playerName: string, role: string, label: string, icon: string, desc: string, cssClass: string, imageUrl: string|null }>} cards
+ */
+function renderPreparedPrintCards(cards) {
+  printCardsEl.innerHTML = '';
+  cards.forEach((cardData) => {
+    printCardsEl.appendChild(buildPrintCardEl(cardData));
+  });
+}
+
+function getPdfThemeByCssClass(cssClass) {
+  if (cssClass === 'liberal' || cssClass === 'custom-0') {
+    return { fill: [240, 248, 255], stroke: [58, 122, 191], title: [26, 74, 128] };
+  }
+  if (cssClass === 'fascist' || cssClass === 'custom-1') {
+    return { fill: [255, 240, 240], stroke: [192, 57, 43], title: [139, 0, 0] };
+  }
+  if (cssClass === 'hitler') {
+    return { fill: [255, 232, 232], stroke: [139, 0, 0], title: [107, 0, 0] };
+  }
+  if (cssClass === 'custom-2') {
+    return { fill: [240, 255, 240], stroke: [39, 174, 96], title: [26, 92, 26] };
+  }
+  if (cssClass === 'custom-3') {
+    return { fill: [248, 240, 255], stroke: [142, 68, 173], title: [90, 26, 139] };
+  }
+  if (cssClass === 'custom-4') {
+    return { fill: [255, 248, 240], stroke: [230, 126, 34], title: [122, 64, 0] };
+  }
+  return { fill: [255, 255, 255], stroke: [120, 120, 120], title: [30, 30, 30] };
+}
+
+function downloadPrintCardsPdf(cards) {
+  const jspdfNs = window.jspdf;
+  if (!jspdfNs || !jspdfNs.jsPDF) {
+    window.alert('PDF download is unavailable right now. Please use Print Cards.');
+    return;
+  }
+
+  const { jsPDF } = jspdfNs;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'in', format: 'letter' });
+
+  const cardWidth = 2.5;
+  const cardHeight = 3.5;
+  const columnGap = 0.2;
+  const rowGap = 0.2;
+  const columns = 3;
+  const rowsPerPage = 2;
+  const pageWidth = 8.5;
+  const leftMargin = (pageWidth - (columns * cardWidth + (columns - 1) * columnGap)) / 2;
+  const topMargin = 0.75;
+
+  cards.forEach((card, index) => {
+    const indexInPage = index % (columns * rowsPerPage);
+    if (index > 0 && indexInPage === 0) {
+      doc.addPage();
+    }
+
+    const col = indexInPage % columns;
+    const row = Math.floor(indexInPage / columns);
+    const x = leftMargin + col * (cardWidth + columnGap);
+    const y = topMargin + row * (cardHeight + rowGap);
+    const theme = getPdfThemeByCssClass(card.cssClass);
+
+    doc.setFillColor(...theme.fill);
+    doc.setDrawColor(...theme.stroke);
+    doc.roundedRect(x, y, cardWidth, cardHeight, 0.08, 0.08, 'FD');
+
+    doc.setTextColor(...theme.title);
+    doc.setFont('times', 'bold');
+    doc.setFontSize(15);
+    doc.text(card.label, x + cardWidth / 2, y + 0.36, { align: 'center', maxWidth: cardWidth - 0.3 });
+
+    const hasImage = card.imageUrl && card.imageUrl.startsWith('data:image/');
+    if (hasImage) {
+      try {
+        doc.addImage(card.imageUrl, 'PNG', x + 0.35, y + 0.6, cardWidth - 0.7, 1.4, undefined, 'FAST');
+      } catch (error) {
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(28);
+        doc.text(card.icon || '🎭', x + cardWidth / 2, y + 1.5, { align: 'center' });
+      }
+    } else {
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(28);
+      doc.text(card.icon || '🎭', x + cardWidth / 2, y + 1.5, { align: 'center' });
+    }
+
+    doc.setDrawColor(153, 153, 153);
+    doc.line(x + 0.15, y + 2.6, x + cardWidth - 0.15, y + 2.6);
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('times', 'bold');
+    doc.setFontSize(12);
+    doc.text(card.playerName, x + cardWidth / 2, y + 2.84, { align: 'center', maxWidth: cardWidth - 0.3 });
+
+    doc.setTextColor(68, 68, 68);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    const descLines = doc.splitTextToSize(card.desc || '', cardWidth - 0.3).slice(0, 3);
+    doc.text(descLines, x + cardWidth / 2, y + 3.03, { align: 'center', maxWidth: cardWidth - 0.3 });
+  });
+
+  const timestamp = new Date().toISOString().slice(0, 10);
+  doc.save(`secret-hitler-print-and-play-${timestamp}.pdf`);
 }
 
 // ── Standard mode – event handlers ───────────────────────────────────────────
@@ -617,18 +740,15 @@ restartBtn.addEventListener('click', () => {
 });
 
 printBtn.addEventListener('click', () => {
-  let cards;
-  if (currentMode === 'custom') {
-    const metaMap = buildCustomRoleMetaMap();
-    cards = buildPrintCards(currentPairs, {}, metaMap);
-  } else {
-    cards = buildPrintCards(currentPairs, getCustomMeta());
-  }
-  printCardsEl.innerHTML = '';
-  cards.forEach((cardData) => {
-    printCardsEl.appendChild(buildPrintCardEl(cardData));
-  });
+  const cards = buildCurrentPrintCardData();
+  renderPreparedPrintCards(cards);
   window.print();
+});
+
+downloadPdfBtn.addEventListener('click', () => {
+  const cards = buildCurrentPrintCardData();
+  renderPreparedPrintCards(cards);
+  downloadPrintCardsPdf(cards);
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
