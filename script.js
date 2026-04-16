@@ -176,7 +176,7 @@ function updatePlayerCount() {
 
 function getNextAutoPlayerName(existingPlayers) {
   let i = 1;
-  while (existingPlayers.some((name) => name.toLowerCase() === `player ${i}`)) {
+  while (existingPlayers.some((playerName) => playerName.toLowerCase() === `player ${i}`)) {
     i += 1;
   }
   return `Player ${i}`;
@@ -468,15 +468,10 @@ playerForm.addEventListener('submit', (e) => {
   if (players.length >= MAX_PLAYERS) return;
 
   players.push(name);
-  playerInput.value = '';
   renderPlayerList();
   playerInput.focus();
 
   addBtn.disabled = players.length >= MAX_PLAYERS;
-});
-
-playerInput.addEventListener('input', () => {
-  playerInput.setCustomValidity('');
 });
 
 // Delegated event for remove buttons
@@ -656,13 +651,8 @@ customPlayerForm.addEventListener('submit', (e) => {
   if (customPlayers.length >= total) return;
 
   customPlayers.push(name);
-  customPlayerInput.value = '';
   renderCustomPlayerList();
   customPlayerInput.focus();
-});
-
-customPlayerInput.addEventListener('input', () => {
-  customPlayerInput.setCustomValidity('');
 });
 
 // Delegated remove for custom players
