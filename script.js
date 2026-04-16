@@ -174,6 +174,18 @@ function updatePlayerCount() {
   generateBtn.disabled = !ready;
 }
 
+function getSequentialPlayerName(index) {
+  return `Player ${index + 1}`;
+}
+
+function getNextAutoPlayerName(existingPlayers) {
+  let i = 1;
+  while (existingPlayers.some((name) => name.toLowerCase() === `player ${i}`)) {
+    i += 1;
+  }
+  return `Player ${i}`;
+}
+
 function renderPlayerList() {
   playerListEl.innerHTML = '';
   players.forEach((name, index) => {
@@ -455,7 +467,8 @@ function downloadPrintCardsPdf(cards) {
 
 playerForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  const name = playerInput.value.trim();
+  const typedName = playerInput.value.trim();
+  const name = typedName || getNextAutoPlayerName(players);
 
   if (!name) return;
   if (players.length >= MAX_PLAYERS) return;
@@ -494,7 +507,7 @@ playerListEl.addEventListener('click', (e) => {
 
 generateBtn.addEventListener('click', () => {
   const deck   = buildDeck(players.length);
-  const paired = players.map((name, i) => ({ name, role: deck[i] }));
+  const paired = players.map((_, i) => ({ name: getSequentialPlayerName(i), role: deck[i] }));
 
   shuffle(paired);
   currentPairs = paired;
@@ -653,7 +666,8 @@ customRoleListEl.addEventListener('click', (e) => {
 
 customPlayerForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  const name  = customPlayerInput.value.trim();
+  const typedName = customPlayerInput.value.trim();
+  const name = typedName || getNextAutoPlayerName(customPlayers);
   const total = customTotalRoleCount();
 
   if (!name) return;
@@ -693,7 +707,7 @@ customGenerateBtn.addEventListener('click', () => {
   const deck     = buildCustomDeck(roleDefs);
   const metaMap  = buildCustomRoleMetaMap();
 
-  const paired = customPlayers.map((name, i) => ({ name, role: deck[i] }));
+  const paired = customPlayers.map((_, i) => ({ name: getSequentialPlayerName(i), role: deck[i] }));
   shuffle(paired);
   currentPairs = paired;
 

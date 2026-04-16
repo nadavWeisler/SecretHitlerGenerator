@@ -19,7 +19,7 @@ https://nadavweisler.github.io/SecretHitlerGenerator/
 ## Features
 
 - Wizard flow for creating print-and-play cards
-- Add 5–10 players by name
+- Add 5–10 players (names optional)
 - Roles are distributed according to the official rules and shuffled randomly
 - Customize role names and role images (defaults are the original role names/icons)
 - Tap a player's card to privately reveal their role, tap again to hide it
@@ -41,7 +41,7 @@ https://nadavweisler.github.io/SecretHitlerGenerator/
 1. Clone or download this repository.
 2. Open `index.html` in a web browser (no server required).
 3. Open **Print & Play Wizard**.
-4. Enter each player's name and click **Add** (or press Enter), then click **Next: Customize**.
+4. Add each player and click **Add** (or press Enter). Names are optional; generated cards use the format **Player 1**, **Player 2**, etc. Then click **Next: Customize**.
 5. Optionally customize role names/images, then click **Generate Print & Play Cards**.
 6. Click **Download PDF** to save the generated cards as a PDF, or **Print Cards** to print directly.
 
