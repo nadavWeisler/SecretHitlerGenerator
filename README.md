@@ -2,6 +2,20 @@
 
 A lightweight, single-page web app for generating printable role cards for [Secret Hitler](https://www.secrethitler.com/).
 
+## Live site
+
+https://nadavweisler.github.io/SecretHitlerGenerator/
+
+## Screenshots
+
+### Home screen
+
+![Secret Hitler Generator home screen](https://github.com/user-attachments/assets/10cdcad8-39e3-4c4d-8cc5-759dd97bb6be)
+
+### Print & Play Wizard
+
+![Print & Play Wizard step](https://github.com/user-attachments/assets/898c5094-973a-4596-8d08-523182b83604)
+
 ## Features
 
 - Wizard flow for creating print-and-play cards
