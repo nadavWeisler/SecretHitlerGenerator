@@ -13,6 +13,8 @@
 
 /** Number of colour slots that cycle for custom roles. */
 const CUSTOM_COLOR_COUNT = 5;
+/** Maximum number of description lines shown on each PDF card. */
+const PDF_MAX_DESC_LINES = 3;
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -441,11 +443,11 @@ function downloadPrintCardsPdf(cards) {
     doc.setTextColor(68, 68, 68);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
-    const descLines = doc.splitTextToSize(card.desc || '', cardWidth - 0.3).slice(0, 3);
+    const descLines = doc.splitTextToSize(card.desc || '', cardWidth - 0.3).slice(0, PDF_MAX_DESC_LINES);
     doc.text(descLines, x + cardWidth / 2, y + 3.03, { align: 'center', maxWidth: cardWidth - 0.3 });
   });
 
-  const timestamp = new Date().toISOString().slice(0, 10);
+  const timestamp = new Date().toISOString().split('T')[0];
   doc.save(`secret-hitler-print-and-play-${timestamp}.pdf`);
 }
 
