@@ -174,10 +174,6 @@ function updatePlayerCount() {
   generateBtn.disabled = !ready;
 }
 
-function getSequentialPlayerName(index) {
-  return `Player ${index + 1}`;
-}
-
 function getNextAutoPlayerName(existingPlayers) {
   let i = 1;
   while (existingPlayers.some((name) => name.toLowerCase() === `player ${i}`)) {
@@ -467,24 +463,12 @@ function downloadPrintCardsPdf(cards) {
 
 playerForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  const typedName = playerInput.value.trim();
-  const name = typedName || getNextAutoPlayerName(players);
+  const name = getNextAutoPlayerName(players);
 
-  if (!name) return;
   if (players.length >= MAX_PLAYERS) return;
-
-  // Prevent duplicate names (case-insensitive)
-  if (players.some((p) => p.toLowerCase() === name.toLowerCase())) {
-    playerInput.select();
-    playerInput.setCustomValidity('Name already added.');
-    playerInput.reportValidity();
-    setTimeout(() => playerInput.setCustomValidity(''), 2000);
-    return;
-  }
 
   players.push(name);
   playerInput.value = '';
-  playerInput.setCustomValidity('');
   renderPlayerList();
   playerInput.focus();
 
@@ -507,7 +491,7 @@ playerListEl.addEventListener('click', (e) => {
 
 generateBtn.addEventListener('click', () => {
   const deck   = buildDeck(players.length);
-  const paired = players.map((_, i) => ({ name: getSequentialPlayerName(i), role: deck[i] }));
+  const paired = players.map((name, i) => ({ name, role: deck[i] }));
 
   shuffle(paired);
   currentPairs = paired;
@@ -666,24 +650,13 @@ customRoleListEl.addEventListener('click', (e) => {
 
 customPlayerForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  const typedName = customPlayerInput.value.trim();
-  const name = typedName || getNextAutoPlayerName(customPlayers);
+  const name = getNextAutoPlayerName(customPlayers);
   const total = customTotalRoleCount();
 
-  if (!name) return;
   if (customPlayers.length >= total) return;
-
-  if (customPlayers.some((p) => p.toLowerCase() === name.toLowerCase())) {
-    customPlayerInput.select();
-    customPlayerInput.setCustomValidity('Name already added.');
-    customPlayerInput.reportValidity();
-    setTimeout(() => customPlayerInput.setCustomValidity(''), 2000);
-    return;
-  }
 
   customPlayers.push(name);
   customPlayerInput.value = '';
-  customPlayerInput.setCustomValidity('');
   renderCustomPlayerList();
   customPlayerInput.focus();
 });
@@ -707,7 +680,7 @@ customGenerateBtn.addEventListener('click', () => {
   const deck     = buildCustomDeck(roleDefs);
   const metaMap  = buildCustomRoleMetaMap();
 
-  const paired = customPlayers.map((_, i) => ({ name: getSequentialPlayerName(i), role: deck[i] }));
+  const paired = customPlayers.map((name, i) => ({ name, role: deck[i] }));
   shuffle(paired);
   currentPairs = paired;
 
