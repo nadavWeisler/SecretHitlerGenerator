@@ -109,26 +109,46 @@ function escapeHtml(str) {
  * Merge player-role pairs with optional custom role-metadata overrides.
  * Returns plain data objects suitable for rendering print cards (no DOM dependency).
  *
- * @param {Array<{name: string, role: string}>} pairs     Ordered player-role pairings
- * @param {Object}                              [customMeta]  Per-role overrides
+ * @param {Array<{name: string, role: string}>} pairs         Ordered player-role pairings
+ * @param {Object}                              [customMeta]  Per-role label/image overrides
  *   customMeta[roleKey] may contain { label?: string, imageUrl?: string }
+ * @param {Object}                              [baseMeta]    Base metadata lookup; defaults to ROLE_META.
+ *   Pass a custom map when building print cards for a custom game.
  * @returns {Array<{playerName: string, role: string, label: string, icon: string, desc: string, cssClass: string, imageUrl: string|null}>}
  */
-function buildPrintCards(pairs, customMeta) {
+function buildPrintCards(pairs, customMeta, baseMeta) {
   const overrides = customMeta || {};
+  const base_meta = baseMeta || ROLE_META;
   return pairs.map(({ name, role }) => {
-    const base   = ROLE_META[role];
+    const base   = base_meta[role] || {};
     const custom = overrides[role] || {};
     return {
       playerName: name,
       role,
-      label:    (typeof custom.label === 'string' && custom.label.trim()) ? custom.label.trim() : base.label,
-      icon:     base.icon,
-      desc:     base.desc,
-      cssClass: base.cssClass,
+      label:    (typeof custom.label === 'string' && custom.label.trim()) ? custom.label.trim() : (base.label || role),
+      icon:     base.icon || '🎭',
+      desc:     base.desc || '',
+      cssClass: base.cssClass || 'custom-0',
       imageUrl: custom.imageUrl || null,
     };
   });
+}
+
+/**
+ * Build a shuffled role deck for a custom game.
+ *
+ * @param {Array<{key: string, count: number}>} roleDefs
+ *   Each element must have a `key` (unique role identifier) and a `count` (number of cards).
+ * @returns {string[]} Shuffled array of role keys
+ */
+function buildCustomDeck(roleDefs) {
+  const deck = [];
+  for (const def of roleDefs) {
+    for (let i = 0; i < def.count; i++) {
+      deck.push(def.key);
+    }
+  }
+  return shuffle(deck);
 }
 
 // ── Module export (Node.js / Jest) / global exposure (browser) ───────────────
@@ -143,6 +163,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ROLE_META,
     shuffle,
     buildDeck,
+    buildCustomDeck,
     escapeHtml,
     buildPrintCards,
   };

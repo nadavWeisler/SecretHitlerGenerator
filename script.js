@@ -1,22 +1,30 @@
 /**
- * Secret Hitler – Role Generator
+ * Secret Hitler – Game Generator
  * script.js  –  DOM interaction layer.
  *
  * Requires lib.js to be loaded first (provides MIN_PLAYERS, MAX_PLAYERS,
- * ROLES, ROLE_META, shuffle, buildDeck, buildPrintCards, escapeHtml as globals).
+ * ROLES, ROLE_META, shuffle, buildDeck, buildCustomDeck, buildPrintCards,
+ * escapeHtml as globals).
  */
 
 'use strict';
 
-// ── State ────────────────────────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────
 
+/** Number of colour slots that cycle for custom roles. */
+const CUSTOM_COLOR_COUNT = 5;
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
+/** Active mode: null | 'standard' | 'custom' */
+let currentMode = null;
+
+// Standard-mode state
 /** @type {string[]} */
 let players = [];
 
 /**
  * Stores the most-recently generated player-role pairings.
- * Populated by the Generate button handler; consumed by the Print button
- * handler to build the printable card layout.
  * @type {Array<{name: string, role: string}>}
  */
 let currentPairs = [];
@@ -24,43 +32,107 @@ let currentPairs = [];
 /** @type {{ liberal: string|null, fascist: string|null, hitler: string|null }} */
 const customImageData = { liberal: null, fascist: null, hitler: null };
 
-// ── DOM references ───────────────────────────────────────────────────────────
+// Custom-game state
+/**
+ * @type {Array<{key: string, name: string, icon: string, desc: string, colorIndex: number}>}
+ */
+let customRoles = [];
 
-const playerForm     = document.getElementById('player-form');
-const playerInput    = document.getElementById('player-input');
-const addBtn         = document.getElementById('add-btn');
-const playerListEl   = document.getElementById('player-list');
-const playerCountEl  = document.getElementById('player-count');
-const generateBtn    = document.getElementById('generate-btn');
-const setupSection   = document.getElementById('setup-section');
-const resultsSection = document.getElementById('results-section');
-const roleCardsEl    = document.getElementById('role-cards');
-const restartBtn     = document.getElementById('restart-btn');
+/** @type {string[]} */
+let customPlayers = [];
 
-// Customization inputs
+// ── DOM references ────────────────────────────────────────────────────────────
+
+// Mode selection
+const modeSectionEl    = document.getElementById('mode-section');
+const modeStandardBtn  = document.getElementById('mode-standard-btn');
+const modeCustomBtn    = document.getElementById('mode-custom-btn');
+
+// Standard mode
+const setupSection     = document.getElementById('setup-section');
+const standardBackBtn  = document.getElementById('standard-back-btn');
+const playerForm       = document.getElementById('player-form');
+const playerInput      = document.getElementById('player-input');
+const addBtn           = document.getElementById('add-btn');
+const playerListEl     = document.getElementById('player-list');
+const playerCountEl    = document.getElementById('player-count');
+const generateBtn      = document.getElementById('generate-btn');
+
+// Standard customisation inputs
 const customLabelInputs = {
   liberal: document.getElementById('custom-label-liberal'),
   fascist: document.getElementById('custom-label-fascist'),
   hitler:  document.getElementById('custom-label-hitler'),
 };
-
 const customImgInputs = {
   liberal: document.getElementById('custom-img-liberal'),
   fascist: document.getElementById('custom-img-fascist'),
   hitler:  document.getElementById('custom-img-hitler'),
 };
-
 const customImgPreviews = {
   liberal: document.getElementById('custom-preview-liberal'),
   fascist: document.getElementById('custom-preview-fascist'),
   hitler:  document.getElementById('custom-preview-hitler'),
 };
 
-// Print elements
-const printBtn     = document.getElementById('print-btn');
-const printCardsEl = document.getElementById('print-cards');
+// Custom game section
+const customGameSectionEl  = document.getElementById('custom-game-section');
+const customBackBtn        = document.getElementById('custom-back-btn');
+const customRoleForm       = document.getElementById('custom-role-form');
+const customRoleIconInput  = document.getElementById('custom-role-icon-input');
+const customRoleNameInput  = document.getElementById('custom-role-name-input');
+const customRoleCountInput = document.getElementById('custom-role-count-input');
+const customRoleDescInput  = document.getElementById('custom-role-desc-input');
+const customRoleListEl     = document.getElementById('custom-role-list');
+const customRolesSummary   = document.getElementById('custom-roles-summary');
+const customNeededCountEl  = document.getElementById('custom-needed-count');
+const customPlayerForm     = document.getElementById('custom-player-form');
+const customPlayerInput    = document.getElementById('custom-player-input');
+const customAddPlayerBtn   = document.getElementById('custom-add-player-btn');
+const customPlayerListEl   = document.getElementById('custom-player-list');
+const customPlayerCountEl  = document.getElementById('custom-player-count');
+const customGenerateBtn    = document.getElementById('custom-generate-btn');
 
-// ── UI helpers ───────────────────────────────────────────────────────────────
+// Results (shared)
+const resultsSection = document.getElementById('results-section');
+const roleCardsEl    = document.getElementById('role-cards');
+const restartBtn     = document.getElementById('restart-btn');
+const printBtn       = document.getElementById('print-btn');
+const printCardsEl   = document.getElementById('print-cards');
+
+// ── Mode navigation ───────────────────────────────────────────────────────────
+
+function showModeSection() {
+  modeSectionEl.classList.remove('hidden');
+  setupSection.classList.add('hidden');
+  customGameSectionEl.classList.add('hidden');
+  resultsSection.classList.add('hidden');
+  currentMode = null;
+}
+
+modeStandardBtn.addEventListener('click', () => {
+  currentMode = 'standard';
+  modeSectionEl.classList.add('hidden');
+  setupSection.classList.remove('hidden');
+  playerInput.focus();
+});
+
+modeCustomBtn.addEventListener('click', () => {
+  currentMode = 'custom';
+  modeSectionEl.classList.add('hidden');
+  customGameSectionEl.classList.remove('hidden');
+  customRoleNameInput.focus();
+});
+
+standardBackBtn.addEventListener('click', () => {
+  showModeSection();
+});
+
+customBackBtn.addEventListener('click', () => {
+  showModeSection();
+});
+
+// ── Standard mode – UI helpers ────────────────────────────────────────────────
 
 function updatePlayerCount() {
   const n = players.length;
@@ -88,14 +160,19 @@ function renderPlayerList() {
  * Build a single role card element.
  * @param {string} playerName
  * @param {string} role
+ * @param {{ label: string, icon: string, desc: string, cssClass: string }} [metaOverride]
+ *   Optional: supply custom role metadata for non-standard roles.
  * @returns {HTMLElement}
  */
-function buildRoleCard(playerName, role) {
-  const meta = ROLE_META[role];
+function buildRoleCard(playerName, role, metaOverride) {
+  const meta = metaOverride || ROLE_META[role];
 
   const card = document.createElement('div');
   card.className = 'role-card';
   card.setAttribute('aria-label', `Role card for ${playerName}. Tap to reveal.`);
+
+  const labelText = document.createTextNode(meta.label);
+  const descText  = document.createTextNode(meta.desc);
 
   card.innerHTML = `
     <div class="role-card-inner">
@@ -106,12 +183,16 @@ function buildRoleCard(playerName, role) {
       </div>
       <div class="role-back ${meta.cssClass}">
         <span class="role-icon">${meta.icon}</span>
-        <span class="role-label">${meta.label}</span>
-        <span class="role-desc">${meta.desc}</span>
+        <span class="role-label"></span>
+        <span class="role-desc"></span>
         <span class="card-tap-hint">Tap to hide</span>
       </div>
     </div>
   `;
+
+  // Set user-supplied text via DOM to avoid XSS (icon comes from our own data only)
+  card.querySelector('.role-label').appendChild(labelText);
+  card.querySelector('.role-desc').appendChild(descText);
 
   card.addEventListener('click', () => {
     const isFlipped = card.classList.toggle('flipped');
@@ -126,7 +207,7 @@ function buildRoleCard(playerName, role) {
   return card;
 }
 
-// ── Customization helpers ────────────────────────────────────────────────────
+// ── Standard mode – customisation helpers ─────────────────────────────────────
 
 /**
  * Wire up a file input to read the selected image as a data-URL,
@@ -154,7 +235,7 @@ function setupImageUpload(role) {
 ['liberal', 'fascist', 'hitler'].forEach(setupImageUpload);
 
 /**
- * Read current customization inputs and return a customMeta object
+ * Read standard customisation inputs and return a customMeta object
  * suitable for passing to buildPrintCards().
  * @returns {Object}
  */
@@ -216,7 +297,7 @@ function buildPrintCardEl(cardData) {
   return article;
 }
 
-// ── Event handlers ───────────────────────────────────────────────────────────
+// ── Standard mode – event handlers ───────────────────────────────────────────
 
 playerForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -240,7 +321,6 @@ playerForm.addEventListener('submit', (e) => {
   renderPlayerList();
   playerInput.focus();
 
-  // Disable add button once max reached
   addBtn.disabled = players.length >= MAX_PLAYERS;
 });
 
@@ -262,10 +342,7 @@ generateBtn.addEventListener('click', () => {
   const deck   = buildDeck(players.length);
   const paired = players.map((name, i) => ({ name, role: deck[i] }));
 
-  // Shuffle the display order so position doesn't hint at role
   shuffle(paired);
-
-  // Store for use by the print button
   currentPairs = paired;
 
   roleCardsEl.innerHTML = '';
@@ -278,20 +355,238 @@ generateBtn.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
+// ── Custom game – helpers ─────────────────────────────────────────────────────
+
+/** Total number of players required by the currently-defined custom roles. */
+function customTotalRoleCount() {
+  return customRoles.reduce((sum, r) => sum + r.count, 0);
+}
+
+/** Rebuild the custom role list display and update the summary + generate button state. */
+function renderCustomRoleList() {
+  customRoleListEl.innerHTML = '';
+  customRoles.forEach((role, index) => {
+    const li = document.createElement('li');
+
+    const swatch = document.createElement('span');
+    swatch.className = `custom-role-swatch custom-swatch-${role.colorIndex}`;
+
+    const iconCol = document.createElement('span');
+    iconCol.className = 'role-icon-col';
+    iconCol.textContent = role.icon;
+
+    const nameCol = document.createElement('span');
+    nameCol.className = 'role-name-col';
+    nameCol.textContent = role.name;
+
+    if (role.desc) {
+      const descSmall = document.createElement('small');
+      descSmall.style.cssText = 'display:block;color:var(--color-muted);font-weight:400;font-size:0.75rem';
+      descSmall.textContent = role.desc;
+      nameCol.appendChild(descSmall);
+    }
+
+    const countBadge = document.createElement('span');
+    countBadge.className = 'role-count-badge';
+    countBadge.textContent = `×${role.count}`;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.setAttribute('aria-label', `Remove role ${role.name}`);
+    removeBtn.dataset.index = index;
+    removeBtn.textContent = '✕';
+
+    li.append(swatch, iconCol, nameCol, countBadge, removeBtn);
+    customRoleListEl.appendChild(li);
+  });
+
+  const total = customTotalRoleCount();
+  customRolesSummary.textContent =
+    `${customRoles.length} role${customRoles.length !== 1 ? 's' : ''} defined · ${total} player${total !== 1 ? 's' : ''} needed`;
+  customNeededCountEl.textContent = total;
+
+  updateCustomGenerateBtn();
+}
+
+/** Rebuild the custom player list and update the count display. */
+function renderCustomPlayerList() {
+  customPlayerListEl.innerHTML = '';
+  customPlayers.forEach((name, index) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span class="player-number">${index + 1}.</span>
+      <span class="player-name">${escapeHtml(name)}</span>
+      <button class="remove-btn" aria-label="Remove ${escapeHtml(name)}" data-index="${index}">✕</button>
+    `;
+    customPlayerListEl.appendChild(li);
+  });
+
+  const total  = customTotalRoleCount();
+  const added  = customPlayers.length;
+  customPlayerCountEl.textContent = `${added} / ${total} players added`;
+  customAddPlayerBtn.disabled = added >= total && total > 0;
+
+  updateCustomGenerateBtn();
+}
+
+function updateCustomGenerateBtn() {
+  const total = customTotalRoleCount();
+  const ready = customRoles.length > 0 && customPlayers.length === total && total > 0;
+  customGenerateBtn.disabled = !ready;
+}
+
+/**
+ * Build a lookup map of role key → card metadata for custom roles.
+ * @returns {Object}
+ */
+function buildCustomRoleMetaMap() {
+  const map = {};
+  customRoles.forEach((r) => {
+    map[r.key] = {
+      label:    r.name,
+      icon:     r.icon,
+      desc:     r.desc,
+      cssClass: `custom-${r.colorIndex}`,
+    };
+  });
+  return map;
+}
+
+// ── Custom game – event handlers ──────────────────────────────────────────────
+
+customRoleForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const name  = customRoleNameInput.value.trim();
+  const icon  = customRoleIconInput.value.trim() || '🎭';
+  const count = parseInt(customRoleCountInput.value, 10);
+  const desc  = customRoleDescInput.value.trim();
+
+  if (!name) {
+    customRoleNameInput.focus();
+    return;
+  }
+  if (!count || count < 1) {
+    customRoleCountInput.focus();
+    return;
+  }
+
+  const colorIndex = customRoles.length % CUSTOM_COLOR_COUNT;
+  const key = `custom-role-${customRoles.length}-${Date.now()}`;
+
+  customRoles.push({ key, name, icon, desc, count, colorIndex });
+
+  customRoleNameInput.value  = '';
+  customRoleIconInput.value  = '';
+  customRoleCountInput.value = '';
+  customRoleDescInput.value  = '';
+  renderCustomRoleList();
+  renderCustomPlayerList();
+  customRoleNameInput.focus();
+});
+
+// Delegated remove for custom roles
+customRoleListEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.remove-btn');
+  if (!btn) return;
+  const idx = parseInt(btn.dataset.index, 10);
+  customRoles.splice(idx, 1);
+  // Re-assign colorIndex so colours stay consistent after deletion
+  customRoles.forEach((r, i) => { r.colorIndex = i % CUSTOM_COLOR_COUNT; });
+  renderCustomRoleList();
+  renderCustomPlayerList();
+});
+
+customPlayerForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name  = customPlayerInput.value.trim();
+  const total = customTotalRoleCount();
+
+  if (!name) return;
+  if (customPlayers.length >= total) return;
+
+  if (customPlayers.some((p) => p.toLowerCase() === name.toLowerCase())) {
+    customPlayerInput.select();
+    customPlayerInput.setCustomValidity('Name already added.');
+    customPlayerInput.reportValidity();
+    setTimeout(() => customPlayerInput.setCustomValidity(''), 2000);
+    return;
+  }
+
+  customPlayers.push(name);
+  customPlayerInput.value = '';
+  customPlayerInput.setCustomValidity('');
+  renderCustomPlayerList();
+  customPlayerInput.focus();
+});
+
+customPlayerInput.addEventListener('input', () => {
+  customPlayerInput.setCustomValidity('');
+});
+
+// Delegated remove for custom players
+customPlayerListEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.remove-btn');
+  if (!btn) return;
+  const idx = parseInt(btn.dataset.index, 10);
+  customPlayers.splice(idx, 1);
+  customAddPlayerBtn.disabled = false;
+  renderCustomPlayerList();
+});
+
+customGenerateBtn.addEventListener('click', () => {
+  const roleDefs = customRoles.map(({ key, count }) => ({ key, count }));
+  const deck     = buildCustomDeck(roleDefs);
+  const metaMap  = buildCustomRoleMetaMap();
+
+  const paired = customPlayers.map((name, i) => ({ name, role: deck[i] }));
+  shuffle(paired);
+  currentPairs = paired;
+
+  roleCardsEl.innerHTML = '';
+  paired.forEach(({ name, role }) => {
+    roleCardsEl.appendChild(buildRoleCard(name, role, metaMap[role]));
+  });
+
+  customGameSectionEl.classList.add('hidden');
+  resultsSection.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ── Results – shared handlers ─────────────────────────────────────────────────
+
 restartBtn.addEventListener('click', () => {
-  players = [];
+  // Reset standard state
+  players      = [];
   currentPairs = [];
   playerInput.value = '';
-  addBtn.disabled = false;
+  addBtn.disabled   = false;
   renderPlayerList();
+
+  // Reset custom state
+  customRoles   = [];
+  customPlayers = [];
+  customRoleNameInput.value  = '';
+  customRoleIconInput.value  = '';
+  customRoleCountInput.value = '';
+  customRoleDescInput.value  = '';
+  customPlayerInput.value    = '';
+  renderCustomRoleList();
+  renderCustomPlayerList();
+
   resultsSection.classList.add('hidden');
-  setupSection.classList.remove('hidden');
+  showModeSection();
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  playerInput.focus();
 });
 
 printBtn.addEventListener('click', () => {
-  const cards = buildPrintCards(currentPairs, getCustomMeta());
+  let cards;
+  if (currentMode === 'custom') {
+    const metaMap = buildCustomRoleMetaMap();
+    cards = buildPrintCards(currentPairs, {}, metaMap);
+  } else {
+    cards = buildPrintCards(currentPairs, getCustomMeta());
+  }
   printCardsEl.innerHTML = '';
   cards.forEach((cardData) => {
     printCardsEl.appendChild(buildPrintCardEl(cardData));
@@ -299,6 +594,8 @@ printBtn.addEventListener('click', () => {
   window.print();
 });
 
-// ── Init ─────────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 
 updatePlayerCount();
+renderCustomRoleList();
+renderCustomPlayerList();
