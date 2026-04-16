@@ -175,11 +175,12 @@ function updatePlayerCount() {
 }
 
 function getNextAutoPlayerName(existingPlayers) {
-  let i = 1;
-  while (existingPlayers.some((playerName) => playerName.toLowerCase() === `player ${i}`)) {
-    i += 1;
+  const existingNames = new Set(existingPlayers.map((playerName) => playerName.toLowerCase()));
+  let nextPlayerNumber = 1;
+  while (existingNames.has(`player ${nextPlayerNumber}`)) {
+    nextPlayerNumber += 1;
   }
-  return `Player ${i}`;
+  return `Player ${nextPlayerNumber}`;
 }
 
 function renderPlayerList() {
