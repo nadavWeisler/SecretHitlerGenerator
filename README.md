@@ -1,4 +1,4 @@
-# Secret Hitler – Print & Play Wizard
+# Secret Hitler – Game Generator
 
 A lightweight, single-page web app for generating printable role cards for [Secret Hitler](https://www.secrethitler.com/).
 
@@ -18,13 +18,13 @@ https://nadavweisler.github.io/SecretHitlerGenerator/
 
 ## Features
 
-- Single-step wizard: choose a player count (5–10) and generate instantly
+- Two-step wizard: choose a player count (5–10), then customize role labels/images
 - Roles are distributed according to the official rules and shuffled randomly
 - Cards are labelled **Player 1 … Player N** — no names required
 - Optionally customize role names and role images before generating
 - PDF is downloaded automatically after generation; re-download or print anytime
 - Tap a card in the on-screen preview to reveal the role privately; tap again to hide
-- No server, no build step – just open `index.html` in any modern browser
+- No server or build step required for usage — just open `index.html` in any modern browser
 
 ## Role distribution
 
@@ -43,15 +43,18 @@ https://nadavweisler.github.io/SecretHitlerGenerator/
 2. Open `index.html` in a web browser (no server required).
 3. **Step 1** – Select the number of players (5–10) and click **Next: Customize**.
 4. **Step 2** – Optionally rename roles or upload custom images, then click **Generate Print & Play Cards**.
-5. A PDF is downloaded automatically. Use **Print Cards** to print directly, or **⬇ Download PDF** to save again.
+5. A PDF is downloaded automatically. Use **🖨 Print Cards** to print directly, or **⬇ Download PDF** to save again.
+6. Use **↩ Start Over** to reset the wizard and all customizations.
 
 ## Files
 
-| File        | Description                          |
-|-------------|--------------------------------------|
-| `index.html`| App shell and markup                 |
-| `style.css` | Dark, themed styles                  |
-| `script.js` | Role logic and DOM interactions      |
+| File               | Description                              |
+|--------------------|------------------------------------------|
+| `index.html`       | App shell and markup                     |
+| `style.css`        | Styling                                  |
+| `script.js`        | DOM interactions and PDF generation      |
+| `lib.js`           | Pure game logic utilities                |
+| `tests/lib.test.js`| Jest tests for pure game logic           |
 
 ## Development
 
