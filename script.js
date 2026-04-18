@@ -15,7 +15,7 @@ const PDF_MAX_DESC_LINES = 3;
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
-/** Selected player count (5–10, 0 = none selected). */
+/** Selected player count (5–10, 0 = no count selected). */
 let playerCount = 0;
 
 /**
@@ -90,9 +90,8 @@ standardCustomizeBackBtn.addEventListener('click', () => {
 // ── Player-count selection ────────────────────────────────────────────────────
 
 function updateReadiness() {
-  const ready = playerCount >= MIN_PLAYERS && playerCount <= MAX_PLAYERS;
-  standardNextBtn.disabled = !ready;
-  generateBtn.disabled = !ready;
+  standardNextBtn.disabled = false;
+  generateBtn.disabled = false;
 }
 
 playerCountSelect.addEventListener('change', () => {
@@ -347,14 +346,27 @@ function downloadPrintCardsPdf(cards) {
 
 generateBtn.addEventListener('click', () => {
   const n    = playerCount;
-  const deck = buildDeck(n);
+  const hasValidCount = n >= MIN_PLAYERS && n <= MAX_PLAYERS;
+  let pairs;
 
-  // Auto-generate anonymous player labels (Player 1 … Player N)
-  const pairs = Array.from({ length: n }, (_, i) => ({
-    name: `Player ${i + 1}`,
-    role: deck[i],
-  }));
-  shuffle(pairs);
+  if (hasValidCount) {
+    const deck = buildDeck(n);
+
+    // Auto-generate anonymous player labels (Player 1 … Player N)
+    pairs = Array.from({ length: n }, (_, i) => ({
+      name: `Player ${i + 1}`,
+      role: deck[i],
+    }));
+    shuffle(pairs);
+  } else {
+    // Customisation-only flow (no player count selected): one card per base role.
+    pairs = [
+      { name: 'Liberal Card', role: ROLES.LIBERAL },
+      { name: 'Fascist Card', role: ROLES.FASCIST },
+      { name: 'Hitler Card', role: ROLES.HITLER },
+    ];
+  }
+
   currentPairs = pairs;
 
   roleCardsEl.innerHTML = '';
