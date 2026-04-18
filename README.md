@@ -18,7 +18,7 @@ https://nadavweisler.github.io/SecretHitlerGenerator/
 
 ## Features
 
-- Two-step wizard: choose a player count (5–10), then customize role labels/images
+- One-step wizard: customize role labels/images, then generate cards for 10 players
 - Roles are distributed according to the official rules and shuffled randomly
 - Cards are labelled **Player 1 … Player N** — no names required
 - Optionally customize role names and role images before generating
@@ -41,8 +41,8 @@ https://nadavweisler.github.io/SecretHitlerGenerator/
 
 1. Clone or download this repository.
 2. Open `index.html` in a web browser (no server required).
-3. **Step 1** – Select the number of players (5–10) and click **Next: Customize**.
-4. **Step 2** – Optionally rename roles or upload custom images, then click **Generate Print & Play Cards**.
+3. Optionally rename roles or upload custom images, then click **Generate Print & Play Cards**.
+4. Cards are generated for 10 players automatically.
 5. A PDF is downloaded automatically. Use **🖨 Print Cards** to print directly, or **⬇ Download PDF** to save again.
 6. Use **↩ Start Over** to reset the wizard and all customizations.
 
