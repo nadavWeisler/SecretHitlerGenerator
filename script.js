@@ -359,7 +359,7 @@ generateBtn.addEventListener('click', () => {
     }));
     shuffle(pairs);
   } else {
-    // Customisation-only flow (no player count selected): one card per base role.
+    // Customization-only flow (no player count selected): one card per base role.
     pairs = [
       { name: 'Liberal Card', role: ROLES.LIBERAL },
       { name: 'Fascist Card', role: ROLES.FASCIST },
