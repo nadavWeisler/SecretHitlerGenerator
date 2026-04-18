@@ -2,7 +2,7 @@
  * Secret Hitler – Game Generator
  * script.js  –  DOM interaction layer.
  *
- * Requires lib.js to be loaded first (provides MIN_PLAYERS, MAX_PLAYERS,
+ * Requires lib.js to be loaded first (provides MAX_PLAYERS,
  * ROLES, ROLE_META, shuffle, buildDeck, buildPrintCards, escapeHtml as globals).
  */
 
@@ -14,9 +14,6 @@
 const PDF_MAX_DESC_LINES = 3;
 
 // ── State ─────────────────────────────────────────────────────────────────────
-
-/** Selected player count (always max players). */
-let playerCount = MAX_PLAYERS;
 
 /**
  * Stores the most-recently generated player-role pairings.
@@ -69,11 +66,6 @@ function resetCustomizationDefaults() {
   customLabelInputs.liberal.value = ROLE_META[ROLES.LIBERAL].label;
   customLabelInputs.fascist.value = ROLE_META[ROLES.FASCIST].label;
   customLabelInputs.hitler.value  = ROLE_META[ROLES.HITLER].label;
-}
-
-function updateReadiness() {
-  const ready = playerCount >= MIN_PLAYERS && playerCount <= MAX_PLAYERS;
-  generateBtn.disabled = !ready;
 }
 
 // ── UI helpers ────────────────────────────────────────────────────────────────
@@ -322,11 +314,10 @@ function downloadPrintCardsPdf(cards) {
 // ── Generation ────────────────────────────────────────────────────────────────
 
 generateBtn.addEventListener('click', () => {
-  const n    = MAX_PLAYERS;
-  const deck = buildDeck(n);
+  const deck = buildDeck(MAX_PLAYERS);
 
   // Auto-generate anonymous player labels (Player 1 … Player N)
-  const pairs = Array.from({ length: n }, (_, i) => ({
+  const pairs = Array.from({ length: MAX_PLAYERS }, (_, i) => ({
     name: `Player ${i + 1}`,
     role: deck[i],
   }));
@@ -363,7 +354,6 @@ downloadPdfBtn.addEventListener('click', () => {
 });
 
 restartBtn.addEventListener('click', () => {
-  playerCount = MAX_PLAYERS;
   currentPairs = [];
   showWizardStep('customize');
   resetCustomizationDefaults();
@@ -382,4 +372,4 @@ restartBtn.addEventListener('click', () => {
 
 resetCustomizationDefaults();
 showWizardStep('customize');
-updateReadiness();
+generateBtn.disabled = false;
