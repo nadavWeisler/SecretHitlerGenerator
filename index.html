@@ -14,11 +14,35 @@
 
     <main>
 
+      <!-- ── Step 1: Choose player count ─────────────────────────────────── -->
       <section id="setup-section" class="card-panel">
         <h2>Print &amp; Play Wizard</h2>
-        <div id="wizard-step-customize">
-          <h3 class="step-heading">Customize Cards</h3>
-          <p class="hint">Cards are always generated for 10 players. Edit role names or upload role images.</p>
+        <div id="wizard-step-players">
+          <h3 class="step-heading">Step 1 – Number of Players (Optional)</h3>
+          <p class="hint">Select 5–10 players for a full shuffled deck, or skip and go straight to customization.</p>
+
+          <div class="input-row">
+            <select
+              id="player-count-select"
+              class="count-select-input"
+              aria-label="Number of players"
+            >
+              <option value="">— skip player count —</option>
+              <option value="5">5 players</option>
+              <option value="6">6 players</option>
+              <option value="7">7 players</option>
+              <option value="8">8 players</option>
+              <option value="9">9 players</option>
+              <option value="10">10 players</option>
+            </select>
+          </div>
+
+          <button id="standard-next-btn" class="btn btn-primary" disabled>Next: Customize</button>
+        </div>
+
+        <div id="wizard-step-customize" class="hidden">
+          <h3 class="step-heading">Step 2 – Customize Cards</h3>
+          <p class="hint">Edit role names or upload role images. Defaults match the original roles.</p>
 
           <div class="customize-body">
             <div class="customize-grid">
@@ -68,6 +92,7 @@
             </div>
           </div>
           <div class="results-actions">
+            <button id="standard-customize-back-btn" class="btn btn-secondary" type="button">← Back</button>
             <button id="generate-btn" class="btn btn-primary" disabled>Generate Print &amp; Play Cards</button>
           </div>
         </div>
