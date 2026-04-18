@@ -3,27 +3,20 @@
  * script.js  –  DOM interaction layer.
  *
  * Requires lib.js to be loaded first (provides MIN_PLAYERS, MAX_PLAYERS,
- * ROLES, ROLE_META, shuffle, buildDeck, buildCustomDeck, buildPrintCards,
- * escapeHtml as globals).
+ * ROLES, ROLE_META, shuffle, buildDeck, buildPrintCards, escapeHtml as globals).
  */
 
 'use strict';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-/** Number of colour slots that cycle for custom roles. */
-const CUSTOM_COLOR_COUNT = 5;
 /** Maximum number of description lines shown on each PDF card. */
 const PDF_MAX_DESC_LINES = 3;
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
-/** Active mode: null | 'standard' | 'custom' */
-let currentMode = null;
-
-// Standard-mode state
-/** @type {string[]} */
-let players = [];
+/** Selected player count (5–10, 0 = none selected). */
+let playerCount = 0;
 
 /**
  * Stores the most-recently generated player-role pairings.
@@ -34,37 +27,17 @@ let currentPairs = [];
 /** @type {{ liberal: string|null, fascist: string|null, hitler: string|null }} */
 const customImageData = { liberal: null, fascist: null, hitler: null };
 
-// Custom-game state
-/**
- * @type {Array<{key: string, name: string, icon: string, desc: string, colorIndex: number}>}
- */
-let customRoles = [];
-
-/** @type {string[]} */
-let customPlayers = [];
-
 // ── DOM references ────────────────────────────────────────────────────────────
 
-// Mode selection
-const modeSectionEl    = document.getElementById('mode-section');
-const modeStandardBtn  = document.getElementById('mode-standard-btn');
-const modeCustomBtn    = document.getElementById('mode-custom-btn');
-
-// Standard mode
-const setupSection     = document.getElementById('setup-section');
-const standardBackBtn  = document.getElementById('standard-back-btn');
-const playerForm       = document.getElementById('player-form');
-const playerInput      = document.getElementById('player-input');
-const addBtn           = document.getElementById('add-btn');
-const playerListEl     = document.getElementById('player-list');
-const playerCountEl    = document.getElementById('player-count');
-const standardStepPlayersEl = document.getElementById('wizard-step-players');
+const setupSection            = document.getElementById('setup-section');
+const playerCountSelect       = document.getElementById('player-count-select');
+const standardStepPlayersEl   = document.getElementById('wizard-step-players');
 const standardStepCustomizeEl = document.getElementById('wizard-step-customize');
-const standardNextBtn = document.getElementById('standard-next-btn');
+const standardNextBtn         = document.getElementById('standard-next-btn');
 const standardCustomizeBackBtn = document.getElementById('standard-customize-back-btn');
-const generateBtn      = document.getElementById('generate-btn');
+const generateBtn             = document.getElementById('generate-btn');
 
-// Standard customisation inputs
+// Customisation inputs
 const customLabelInputs = {
   liberal: document.getElementById('custom-label-liberal'),
   fascist: document.getElementById('custom-label-fascist'),
@@ -81,25 +54,7 @@ const customImgPreviews = {
   hitler:  document.getElementById('custom-preview-hitler'),
 };
 
-// Custom game section
-const customGameSectionEl  = document.getElementById('custom-game-section');
-const customBackBtn        = document.getElementById('custom-back-btn');
-const customRoleForm       = document.getElementById('custom-role-form');
-const customRoleIconInput  = document.getElementById('custom-role-icon-input');
-const customRoleNameInput  = document.getElementById('custom-role-name-input');
-const customRoleCountInput = document.getElementById('custom-role-count-input');
-const customRoleDescInput  = document.getElementById('custom-role-desc-input');
-const customRoleListEl     = document.getElementById('custom-role-list');
-const customRolesSummary   = document.getElementById('custom-roles-summary');
-const customNeededCountEl  = document.getElementById('custom-needed-count');
-const customPlayerForm     = document.getElementById('custom-player-form');
-const customPlayerInput    = document.getElementById('custom-player-input');
-const customAddPlayerBtn   = document.getElementById('custom-add-player-btn');
-const customPlayerListEl   = document.getElementById('custom-player-list');
-const customPlayerCountEl  = document.getElementById('custom-player-count');
-const customGenerateBtn    = document.getElementById('custom-generate-btn');
-
-// Results (shared)
+// Results
 const resultsSection = document.getElementById('results-section');
 const roleCardsEl    = document.getElementById('role-cards');
 const restartBtn     = document.getElementById('restart-btn');
@@ -107,93 +62,51 @@ const printBtn       = document.getElementById('print-btn');
 const downloadPdfBtn = document.getElementById('download-pdf-btn');
 const printCardsEl   = document.getElementById('print-cards');
 
-// ── Mode navigation ───────────────────────────────────────────────────────────
+// ── Wizard navigation ─────────────────────────────────────────────────────────
 
-function showModeSection() {
-  modeSectionEl.classList.remove('hidden');
-  setupSection.classList.add('hidden');
-  customGameSectionEl.classList.add('hidden');
-  resultsSection.classList.add('hidden');
-  currentMode = null;
-}
-
-function showStandardWizardStep(step) {
+function showWizardStep(step) {
   const showPlayers = step === 'players';
   standardStepPlayersEl.classList.toggle('hidden', !showPlayers);
   standardStepCustomizeEl.classList.toggle('hidden', showPlayers);
 }
 
-function resetStandardCustomizationDefaults() {
+function resetCustomizationDefaults() {
   customLabelInputs.liberal.value = ROLE_META[ROLES.LIBERAL].label;
   customLabelInputs.fascist.value = ROLE_META[ROLES.FASCIST].label;
-  customLabelInputs.hitler.value = ROLE_META[ROLES.HITLER].label;
+  customLabelInputs.hitler.value  = ROLE_META[ROLES.HITLER].label;
 }
-
-modeStandardBtn.addEventListener('click', () => {
-  currentMode = 'standard';
-  modeSectionEl.classList.add('hidden');
-  setupSection.classList.remove('hidden');
-  showStandardWizardStep('players');
-  playerInput.focus();
-});
-
-modeCustomBtn.addEventListener('click', () => {
-  currentMode = 'custom';
-  modeSectionEl.classList.add('hidden');
-  customGameSectionEl.classList.remove('hidden');
-  customRoleNameInput.focus();
-});
-
-standardBackBtn.addEventListener('click', () => {
-  showModeSection();
-});
-
-customBackBtn.addEventListener('click', () => {
-  showModeSection();
-});
 
 standardNextBtn.addEventListener('click', () => {
   if (standardNextBtn.disabled) return;
-  showStandardWizardStep('customize');
+  showWizardStep('customize');
   customLabelInputs.liberal.focus();
 });
 
 standardCustomizeBackBtn.addEventListener('click', () => {
-  showStandardWizardStep('players');
-  playerInput.focus();
+  showWizardStep('players');
+  playerCountSelect.focus();
 });
 
-// ── Standard mode – UI helpers ────────────────────────────────────────────────
+// ── Player-count selection ────────────────────────────────────────────────────
 
-function updatePlayerCount() {
-  const n = players.length;
-  playerCountEl.textContent = `${n} / ${MAX_PLAYERS} players`;
-
-  const ready = n >= MIN_PLAYERS && n <= MAX_PLAYERS;
+function updateReadiness() {
+  const ready = playerCount >= MIN_PLAYERS && playerCount <= MAX_PLAYERS;
   standardNextBtn.disabled = !ready;
   generateBtn.disabled = !ready;
 }
 
-function renderPlayerList() {
-  playerListEl.innerHTML = '';
-  players.forEach((name, index) => {
-    const li = document.createElement('li');
-    li.innerHTML = `
-      <span class="player-number">${index + 1}.</span>
-      <span class="player-name">${escapeHtml(name)}</span>
-      <button class="remove-btn" aria-label="Remove ${escapeHtml(name)}" data-index="${index}">✕</button>
-    `;
-    playerListEl.appendChild(li);
-  });
-  updatePlayerCount();
-}
+playerCountSelect.addEventListener('change', () => {
+  playerCount = parseInt(playerCountSelect.value, 10) || 0;
+  updateReadiness();
+});
+
+// ── UI helpers ────────────────────────────────────────────────────────────────
 
 /**
  * Build a single role card element.
  * @param {string} playerName
  * @param {string} role
  * @param {{ label: string, icon: string, desc: string, cssClass: string }} [metaOverride]
- *   Optional: supply custom role metadata for non-standard roles.
  * @returns {HTMLElement}
  */
 function buildRoleCard(playerName, role, metaOverride) {
@@ -239,7 +152,7 @@ function buildRoleCard(playerName, role, metaOverride) {
   return card;
 }
 
-// ── Standard mode – customisation helpers ─────────────────────────────────────
+// ── Customisation helpers ─────────────────────────────────────────────────────
 
 /**
  * Wire up a file input to read the selected image as a data-URL,
@@ -330,18 +243,6 @@ function buildPrintCardEl(cardData) {
 }
 
 /**
- * Build print-card data for the currently generated result set.
- * @returns {Array<{ playerName: string, role: string, label: string, icon: string, desc: string, cssClass: string, imageUrl: string|null }>}
- */
-function buildCurrentPrintCardData() {
-  if (currentMode === 'custom') {
-    const metaMap = buildCustomRoleMetaMap();
-    return buildPrintCards(currentPairs, {}, metaMap);
-  }
-  return buildPrintCards(currentPairs, getCustomMeta());
-}
-
-/**
  * Render print cards into the hidden print section.
  * @param {Array<{ playerName: string, role: string, label: string, icon: string, desc: string, cssClass: string, imageUrl: string|null }>} cards
  */
@@ -353,23 +254,14 @@ function renderPreparedPrintCards(cards) {
 }
 
 function getPdfThemeByCssClass(cssClass) {
-  if (cssClass === 'liberal' || cssClass === 'custom-0') {
+  if (cssClass === 'liberal') {
     return { fill: [240, 248, 255], stroke: [58, 122, 191], title: [26, 74, 128] };
   }
-  if (cssClass === 'fascist' || cssClass === 'custom-1') {
+  if (cssClass === 'fascist') {
     return { fill: [255, 240, 240], stroke: [192, 57, 43], title: [139, 0, 0] };
   }
   if (cssClass === 'hitler') {
     return { fill: [255, 232, 232], stroke: [139, 0, 0], title: [107, 0, 0] };
-  }
-  if (cssClass === 'custom-2') {
-    return { fill: [240, 255, 240], stroke: [39, 174, 96], title: [26, 92, 26] };
-  }
-  if (cssClass === 'custom-3') {
-    return { fill: [248, 240, 255], stroke: [142, 68, 173], title: [90, 26, 139] };
-  }
-  if (cssClass === 'custom-4') {
-    return { fill: [255, 248, 240], stroke: [230, 126, 34], title: [122, 64, 0] };
   }
   return { fill: [255, 255, 255], stroke: [120, 120, 120], title: [30, 30, 30] };
 }
@@ -384,15 +276,15 @@ function downloadPrintCardsPdf(cards) {
   const { jsPDF } = jspdfNs;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'in', format: 'letter' });
 
-  const cardWidth = 2.5;
-  const cardHeight = 3.5;
-  const columnGap = 0.2;
-  const rowGap = 0.2;
-  const columns = 3;
+  const cardWidth   = 2.5;
+  const cardHeight  = 3.5;
+  const columnGap   = 0.2;
+  const rowGap      = 0.2;
+  const columns     = 3;
   const rowsPerPage = 2;
-  const pageWidth = 8.5;
-  const leftMargin = (pageWidth - (columns * cardWidth + (columns - 1) * columnGap)) / 2;
-  const topMargin = 0.75;
+  const pageWidth   = 8.5;
+  const leftMargin  = (pageWidth - (columns * cardWidth + (columns - 1) * columnGap)) / 2;
+  const topMargin   = 0.75;
 
   cards.forEach((card, index) => {
     const indexInPage = index % (columns * rowsPerPage);
@@ -400,10 +292,10 @@ function downloadPrintCardsPdf(cards) {
       doc.addPage();
     }
 
-    const col = indexInPage % columns;
-    const row = Math.floor(indexInPage / columns);
-    const x = leftMargin + col * (cardWidth + columnGap);
-    const y = topMargin + row * (cardHeight + rowGap);
+    const col   = indexInPage % columns;
+    const row   = Math.floor(indexInPage / columns);
+    const x     = leftMargin + col * (cardWidth + columnGap);
+    const y     = topMargin  + row * (cardHeight + rowGap);
     const theme = getPdfThemeByCssClass(card.cssClass);
 
     doc.setFillColor(...theme.fill);
@@ -451,312 +343,68 @@ function downloadPrintCardsPdf(cards) {
   doc.save(`secret-hitler-print-and-play-${timestamp}.pdf`);
 }
 
-// ── Standard mode – event handlers ───────────────────────────────────────────
-
-playerForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const name = playerInput.value.trim();
-
-  if (!name) return;
-  if (players.length >= MAX_PLAYERS) return;
-
-  // Prevent duplicate names (case-insensitive)
-  if (players.some((p) => p.toLowerCase() === name.toLowerCase())) {
-    playerInput.select();
-    playerInput.setCustomValidity('Name already added.');
-    playerInput.reportValidity();
-    setTimeout(() => playerInput.setCustomValidity(''), 2000);
-    return;
-  }
-
-  players.push(name);
-  playerInput.value = '';
-  playerInput.setCustomValidity('');
-  renderPlayerList();
-  playerInput.focus();
-
-  addBtn.disabled = players.length >= MAX_PLAYERS;
-});
-
-playerInput.addEventListener('input', () => {
-  playerInput.setCustomValidity('');
-});
-
-// Delegated event for remove buttons
-playerListEl.addEventListener('click', (e) => {
-  const btn = e.target.closest('.remove-btn');
-  if (!btn) return;
-  const idx = parseInt(btn.dataset.index, 10);
-  players.splice(idx, 1);
-  addBtn.disabled = false;
-  renderPlayerList();
-});
+// ── Generation ────────────────────────────────────────────────────────────────
 
 generateBtn.addEventListener('click', () => {
-  const deck   = buildDeck(players.length);
-  const paired = players.map((name, i) => ({ name, role: deck[i] }));
+  const n    = playerCount;
+  const deck = buildDeck(n);
 
-  shuffle(paired);
-  currentPairs = paired;
+  // Auto-generate anonymous player labels (Player 1 … Player N)
+  const pairs = Array.from({ length: n }, (_, i) => ({
+    name: `Player ${i + 1}`,
+    role: deck[i],
+  }));
+  shuffle(pairs);
+  currentPairs = pairs;
 
   roleCardsEl.innerHTML = '';
-  paired.forEach(({ name, role }) => {
+  pairs.forEach(({ name, role }) => {
     roleCardsEl.appendChild(buildRoleCard(name, role));
   });
 
   setupSection.classList.add('hidden');
   resultsSection.classList.remove('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
-});
 
-// ── Custom game – helpers ─────────────────────────────────────────────────────
-
-/** Total number of players required by the currently-defined custom roles. */
-function customTotalRoleCount() {
-  return customRoles.reduce((sum, r) => sum + r.count, 0);
-}
-
-/** Rebuild the custom role list display and update the summary + generate button state. */
-function renderCustomRoleList() {
-  customRoleListEl.innerHTML = '';
-  customRoles.forEach((role, index) => {
-    const li = document.createElement('li');
-
-    const swatch = document.createElement('span');
-    swatch.className = `custom-role-swatch custom-swatch-${role.colorIndex}`;
-
-    const iconCol = document.createElement('span');
-    iconCol.className = 'role-icon-col';
-    iconCol.textContent = role.icon;
-
-    const nameCol = document.createElement('span');
-    nameCol.className = 'role-name-col';
-    nameCol.textContent = role.name;
-
-    if (role.desc) {
-      const descSmall = document.createElement('small');
-      descSmall.style.cssText = 'display:block;color:var(--color-muted);font-weight:400;font-size:0.75rem';
-      descSmall.textContent = role.desc;
-      nameCol.appendChild(descSmall);
-    }
-
-    const countBadge = document.createElement('span');
-    countBadge.className = 'role-count-badge';
-    countBadge.textContent = `×${role.count}`;
-
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'remove-btn';
-    removeBtn.setAttribute('aria-label', `Remove role ${role.name}`);
-    removeBtn.dataset.index = index;
-    removeBtn.textContent = '✕';
-
-    li.append(swatch, iconCol, nameCol, countBadge, removeBtn);
-    customRoleListEl.appendChild(li);
-  });
-
-  const total = customTotalRoleCount();
-  customRolesSummary.textContent =
-    `${customRoles.length} role${customRoles.length !== 1 ? 's' : ''} defined · ${total} player${total !== 1 ? 's' : ''} needed`;
-  customNeededCountEl.textContent = total;
-
-  updateCustomGenerateBtn();
-}
-
-/** Rebuild the custom player list and update the count display. */
-function renderCustomPlayerList() {
-  customPlayerListEl.innerHTML = '';
-  customPlayers.forEach((name, index) => {
-    const li = document.createElement('li');
-    li.innerHTML = `
-      <span class="player-number">${index + 1}.</span>
-      <span class="player-name">${escapeHtml(name)}</span>
-      <button class="remove-btn" aria-label="Remove ${escapeHtml(name)}" data-index="${index}">✕</button>
-    `;
-    customPlayerListEl.appendChild(li);
-  });
-
-  const total  = customTotalRoleCount();
-  const added  = customPlayers.length;
-  customPlayerCountEl.textContent = `${added} / ${total} players added`;
-  customAddPlayerBtn.disabled = added >= total && total > 0;
-
-  updateCustomGenerateBtn();
-}
-
-function updateCustomGenerateBtn() {
-  const total = customTotalRoleCount();
-  const ready = customRoles.length > 0 && customPlayers.length === total && total > 0;
-  customGenerateBtn.disabled = !ready;
-}
-
-/**
- * Build a lookup map of role key → card metadata for custom roles.
- * @returns {Object}
- */
-function buildCustomRoleMetaMap() {
-  const map = {};
-  customRoles.forEach((r) => {
-    map[r.key] = {
-      label:    r.name,
-      icon:     r.icon,
-      desc:     r.desc,
-      cssClass: `custom-${r.colorIndex}`,
-    };
-  });
-  return map;
-}
-
-// ── Custom game – event handlers ──────────────────────────────────────────────
-
-customRoleForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-
-  const name  = customRoleNameInput.value.trim();
-  const icon  = customRoleIconInput.value.trim() || '🎭';
-  const count = parseInt(customRoleCountInput.value, 10);
-  const desc  = customRoleDescInput.value.trim();
-
-  if (!name) {
-    customRoleNameInput.focus();
-    return;
-  }
-  if (!count || count < 1) {
-    customRoleCountInput.focus();
-    return;
-  }
-
-  const colorIndex = customRoles.length % CUSTOM_COLOR_COUNT;
-  const key = `custom-role-${customRoles.length}-${Date.now()}`;
-
-  customRoles.push({ key, name, icon, desc, count, colorIndex });
-
-  customRoleNameInput.value  = '';
-  customRoleIconInput.value  = '';
-  customRoleCountInput.value = '';
-  customRoleDescInput.value  = '';
-  renderCustomRoleList();
-  renderCustomPlayerList();
-  customRoleNameInput.focus();
-});
-
-// Delegated remove for custom roles
-customRoleListEl.addEventListener('click', (e) => {
-  const btn = e.target.closest('.remove-btn');
-  if (!btn) return;
-  const idx = parseInt(btn.dataset.index, 10);
-  customRoles.splice(idx, 1);
-  // Re-assign colorIndex so colours stay consistent after deletion
-  customRoles.forEach((r, i) => { r.colorIndex = i % CUSTOM_COLOR_COUNT; });
-  renderCustomRoleList();
-  renderCustomPlayerList();
-});
-
-customPlayerForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const name  = customPlayerInput.value.trim();
-  const total = customTotalRoleCount();
-
-  if (!name) return;
-  if (customPlayers.length >= total) return;
-
-  if (customPlayers.some((p) => p.toLowerCase() === name.toLowerCase())) {
-    customPlayerInput.select();
-    customPlayerInput.setCustomValidity('Name already added.');
-    customPlayerInput.reportValidity();
-    setTimeout(() => customPlayerInput.setCustomValidity(''), 2000);
-    return;
-  }
-
-  customPlayers.push(name);
-  customPlayerInput.value = '';
-  customPlayerInput.setCustomValidity('');
-  renderCustomPlayerList();
-  customPlayerInput.focus();
-});
-
-customPlayerInput.addEventListener('input', () => {
-  customPlayerInput.setCustomValidity('');
-});
-
-// Delegated remove for custom players
-customPlayerListEl.addEventListener('click', (e) => {
-  const btn = e.target.closest('.remove-btn');
-  if (!btn) return;
-  const idx = parseInt(btn.dataset.index, 10);
-  customPlayers.splice(idx, 1);
-  customAddPlayerBtn.disabled = false;
-  renderCustomPlayerList();
-});
-
-customGenerateBtn.addEventListener('click', () => {
-  const roleDefs = customRoles.map(({ key, count }) => ({ key, count }));
-  const deck     = buildCustomDeck(roleDefs);
-  const metaMap  = buildCustomRoleMetaMap();
-
-  const paired = customPlayers.map((name, i) => ({ name, role: deck[i] }));
-  shuffle(paired);
-  currentPairs = paired;
-
-  roleCardsEl.innerHTML = '';
-  paired.forEach(({ name, role }) => {
-    roleCardsEl.appendChild(buildRoleCard(name, role, metaMap[role]));
-  });
-
-  customGameSectionEl.classList.add('hidden');
-  resultsSection.classList.remove('hidden');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Auto-download the PDF immediately after generation.
+  const cards = buildPrintCards(currentPairs, getCustomMeta());
+  renderPreparedPrintCards(cards);
+  downloadPrintCardsPdf(cards);
 });
 
 // ── Results – shared handlers ─────────────────────────────────────────────────
 
+printBtn.addEventListener('click', () => {
+  const cards = buildPrintCards(currentPairs, getCustomMeta());
+  renderPreparedPrintCards(cards);
+  window.print();
+});
+
+downloadPdfBtn.addEventListener('click', () => {
+  const cards = buildPrintCards(currentPairs, getCustomMeta());
+  renderPreparedPrintCards(cards);
+  downloadPrintCardsPdf(cards);
+});
+
 restartBtn.addEventListener('click', () => {
-  // Reset standard state
-  players      = [];
+  playerCount = 0;
   currentPairs = [];
-  playerInput.value = '';
-  addBtn.disabled   = false;
-  showStandardWizardStep('players');
-  resetStandardCustomizationDefaults();
+  playerCountSelect.value = '';
+  showWizardStep('players');
+  resetCustomizationDefaults();
   Object.keys(customImageData).forEach((role) => {
     customImageData[role] = null;
     customImgInputs[role].value = '';
     customImgPreviews[role].src = '';
     customImgPreviews[role].classList.add('hidden');
   });
-  renderPlayerList();
-
-  // Reset custom state
-  customRoles   = [];
-  customPlayers = [];
-  customRoleNameInput.value  = '';
-  customRoleIconInput.value  = '';
-  customRoleCountInput.value = '';
-  customRoleDescInput.value  = '';
-  customPlayerInput.value    = '';
-  renderCustomRoleList();
-  renderCustomPlayerList();
-
   resultsSection.classList.add('hidden');
-  showModeSection();
+  setupSection.classList.remove('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-printBtn.addEventListener('click', () => {
-  const cards = buildCurrentPrintCardData();
-  renderPreparedPrintCards(cards);
-  window.print();
-});
-
-downloadPdfBtn.addEventListener('click', () => {
-  const cards = buildCurrentPrintCardData();
-  renderPreparedPrintCards(cards);
-  downloadPrintCardsPdf(cards);
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
-updatePlayerCount();
-resetStandardCustomizationDefaults();
-showStandardWizardStep('players');
-renderCustomRoleList();
-renderCustomPlayerList();
+resetCustomizationDefaults();
+showWizardStep('players');
+updateReadiness();

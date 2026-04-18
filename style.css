@@ -612,7 +612,36 @@ footer a:hover {
   }
 }
 
-/* ---------- Mode selection ---------- */
+/* ---------- Player count select ---------- */
+select.count-select-input {
+  flex: 1;
+  background: #120800;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  font-size: 1rem;
+  padding: 0.55rem 0.8rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23a08060' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  padding-right: 2rem;
+}
+
+select.count-select-input:focus {
+  border-color: var(--color-gold);
+}
+
+select.count-select-input option {
+  background: #120800;
+  color: var(--color-text);
+}
+
+
 .mode-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
