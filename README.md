@@ -20,7 +20,7 @@ https://nadavweisler.github.io/SecretHitlerGenerator/
 
 - One-step wizard: customize role labels/images, then generate cards for 10 players
 - Roles are distributed according to the official rules and shuffled randomly
-- Cards are labelled **Player 1 … Player N** — no names required
+- Cards are labelled **Player 1 … Player 10** — no names required
 - Optionally customize role names and role images before generating
 - PDF is downloaded automatically after generation; re-download or print anytime
 - Tap a card in the on-screen preview to reveal the role privately; tap again to hide

@@ -2,7 +2,7 @@
  * Secret Hitler – Game Generator
  * script.js  –  DOM interaction layer.
  *
- * Requires lib.js to be loaded first (provides MAX_PLAYERS,
+ * Requires lib.js to be loaded first (provides MAX_PLAYERS, ROLES, ROLE_META,
  * ROLES, ROLE_META, shuffle, buildDeck, buildPrintCards, escapeHtml as globals).
  */
 
