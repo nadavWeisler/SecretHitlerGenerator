@@ -9,58 +9,34 @@
   <body>
     <header>
       <h1>Secret Hitler</h1>
-      <p class="subtitle" id="header-subtitle">Game Generator</p>
+      <p class="subtitle" id="header-subtitle">Print &amp; Play Wizard</p>
     </header>
 
     <main>
 
-      <!-- ── Mode selection (shown on load) ───────────────────────────────── -->
-      <section id="mode-section" class="card-panel">
-        <h2>Choose Your Game</h2>
-        <p class="hint">Generate roles for a standard Secret Hitler game, or build your own completely custom game.</p>
-
-        <div class="mode-grid">
-          <button id="mode-standard-btn" class="mode-card">
-            <span class="mode-icon">🎭</span>
-            <strong class="mode-title">Print &amp; Play Wizard</strong>
-            <span class="mode-desc">Create printable Secret Hitler role cards with default text/images and optional customization.</span>
-          </button>
-          <button id="mode-custom-btn" class="mode-card mode-card-featured">
-            <span class="mode-badge">Main</span>
-            <span class="mode-icon">⚙️</span>
-            <strong class="mode-title">Custom Game</strong>
-            <span class="mode-desc">Define your own roles, counts, and descriptions — then assign them to players.</span>
-          </button>
-        </div>
-      </section>
-
-      <!-- ── Step 1 (Standard): Add players ───────────────────────────────── -->
-      <section id="setup-section" class="card-panel hidden">
-        <div class="section-header">
-          <button id="standard-back-btn" class="btn btn-back">← Back</button>
-          <h2>Print &amp; Play Wizard</h2>
-        </div>
+      <!-- ── Step 1: Choose player count ─────────────────────────────────── -->
+      <section id="setup-section" class="card-panel">
+        <h2>Print &amp; Play Wizard</h2>
         <div id="wizard-step-players">
-          <h3 class="step-heading">Step 1 – Add Players</h3>
-          <p class="hint">Add 5 – 10 players. Names are auto-formatted as Player 1, Player 2, etc.</p>
+          <h3 class="step-heading">Step 1 – Number of Players (Optional)</h3>
+          <p class="hint">Select 5–10 players for a full shuffled deck, or skip and go straight to customization.</p>
 
-          <form id="player-form" autocomplete="off">
-            <div class="input-row">
-              <input
-                type="text"
-                id="player-input"
-                placeholder="Names are auto-generated…"
-                maxlength="30"
-                aria-label="Auto-generated player name field"
-                readonly
-              />
-              <button type="submit" id="add-btn" class="btn btn-secondary">Add</button>
-            </div>
-          </form>
+          <div class="input-row">
+            <select
+              id="player-count-select"
+              class="count-select-input"
+              aria-label="Number of players"
+            >
+              <option value="">— skip player count —</option>
+              <option value="5">5 players</option>
+              <option value="6">6 players</option>
+              <option value="7">7 players</option>
+              <option value="8">8 players</option>
+              <option value="9">9 players</option>
+              <option value="10">10 players</option>
+            </select>
+          </div>
 
-          <ul id="player-list" aria-label="Player list"></ul>
-
-          <p id="player-count" class="player-count">0 / 10 players</p>
           <button id="standard-next-btn" class="btn btn-primary" disabled>Next: Customize</button>
         </div>
 
@@ -122,91 +98,12 @@
         </div>
       </section>
 
-      <!-- ── Custom Game Builder ───────────────────────────────────────────── -->
-      <section id="custom-game-section" class="card-panel hidden">
-        <div class="section-header">
-          <button id="custom-back-btn" class="btn btn-back">← Back</button>
-          <h2>Custom Game Builder</h2>
-        </div>
-
-        <!-- Step 1: Define roles -->
-        <h3 class="step-heading">Step 1 – Define Roles</h3>
-        <p class="hint">Add the roles for your game. Each role needs a name and how many players receive it.</p>
-
-        <form id="custom-role-form" autocomplete="off">
-          <div class="custom-role-input-row">
-            <input
-              type="text"
-              id="custom-role-icon-input"
-              placeholder="🎭"
-              maxlength="4"
-              aria-label="Role icon (emoji)"
-              class="icon-input"
-            />
-            <input
-              type="text"
-              id="custom-role-name-input"
-              placeholder="Role name…"
-              maxlength="40"
-              aria-label="Role name"
-            />
-            <input
-              type="number"
-              id="custom-role-count-input"
-              placeholder="#"
-              min="1"
-              max="30"
-              aria-label="Number of players with this role"
-              class="count-input"
-            />
-            <button type="submit" class="btn btn-secondary">Add Role</button>
-          </div>
-          <label class="customize-field-label" style="margin-top:0.5rem">
-            Description <span class="customize-hint">(optional)</span>
-            <input
-              type="text"
-              id="custom-role-desc-input"
-              placeholder="Win condition or role description…"
-              maxlength="120"
-            />
-          </label>
-        </form>
-
-        <ul id="custom-role-list" aria-label="Custom role list" class="custom-role-list"></ul>
-        <p id="custom-roles-summary" class="player-count">0 roles defined &middot; 0 players needed</p>
-
-        <!-- Step 2: Add players -->
-        <h3 class="step-heading" style="margin-top:1.4rem">Step 2 – Add Players</h3>
-          <p class="hint">
-            Add exactly <strong><span id="custom-needed-count">0</span> players</strong> to match your total role count. Names are auto-generated.
-          </p>
-
-        <form id="custom-player-form" autocomplete="off">
-          <div class="input-row">
-            <input
-                type="text"
-                id="custom-player-input"
-                placeholder="Names are auto-generated…"
-                maxlength="30"
-                aria-label="Auto-generated player name field"
-                readonly
-            />
-            <button type="submit" id="custom-add-player-btn" class="btn btn-secondary">Add</button>
-          </div>
-        </form>
-
-        <ul id="custom-player-list" aria-label="Player list"></ul>
-        <p id="custom-player-count" class="player-count">0 players added</p>
-
-        <button id="custom-generate-btn" class="btn btn-primary" disabled>Generate Roles</button>
-      </section>
-
-      <!-- ── Results: Role cards (shared by both modes) ───────────────────── -->
+      <!-- ── Results: Role cards ──────────────────────────────────────────── -->
       <section id="results-section" class="card-panel hidden">
         <h2>Role Cards Preview</h2>
         <p class="hint">
-          Pass the device to each player. Tap your card to reveal your role privately, then tap
-          again to hide it before passing on.
+          Your PDF has been downloaded. Tap any card to preview a role, then tap again to hide it.
+          Use the buttons below to print or re-download.
         </p>
 
         <div id="role-cards" class="role-grid"></div>
@@ -229,14 +126,14 @@
       </p>
     </footer>
 
-    <script src="lib.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
-    <script src="script.js"></script>
-
     <!-- Print layout: hidden on screen, revealed by @media print -->
     <div id="print-section">
       <div class="print-page-title">Secret Hitler – Print &amp; Play Role Cards</div>
       <div id="print-cards" class="print-grid"></div>
     </div>
+
+    <script src="lib.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>
