@@ -15,8 +15,8 @@ const PDF_MAX_DESC_LINES = 3;
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
-/** Selected player count (5–10, 0 = no count selected). */
-let playerCount = 0;
+/** Player count is fixed to the full 10-player deck. */
+const DEFAULT_PLAYER_COUNT = MAX_PLAYERS;
 
 /**
  * Stores the most-recently generated player-role pairings.
@@ -30,11 +30,6 @@ const customImageData = { liberal: null, fascist: null, hitler: null };
 // ── DOM references ────────────────────────────────────────────────────────────
 
 const setupSection            = document.getElementById('setup-section');
-const playerCountSelect       = document.getElementById('player-count-select');
-const standardStepPlayersEl   = document.getElementById('wizard-step-players');
-const standardStepCustomizeEl = document.getElementById('wizard-step-customize');
-const standardNextBtn         = document.getElementById('standard-next-btn');
-const standardCustomizeBackBtn = document.getElementById('standard-customize-back-btn');
 const generateBtn             = document.getElementById('generate-btn');
 
 // Customisation inputs
@@ -62,42 +57,13 @@ const printBtn       = document.getElementById('print-btn');
 const downloadPdfBtn = document.getElementById('download-pdf-btn');
 const printCardsEl   = document.getElementById('print-cards');
 
-// ── Wizard navigation ─────────────────────────────────────────────────────────
-
-function showWizardStep(step) {
-  const showPlayers = step === 'players';
-  standardStepPlayersEl.classList.toggle('hidden', !showPlayers);
-  standardStepCustomizeEl.classList.toggle('hidden', showPlayers);
-}
+// ── Setup helpers ────────────────────────────────────────────────────────────
 
 function resetCustomizationDefaults() {
   customLabelInputs.liberal.value = ROLE_META[ROLES.LIBERAL].label;
   customLabelInputs.fascist.value = ROLE_META[ROLES.FASCIST].label;
   customLabelInputs.hitler.value  = ROLE_META[ROLES.HITLER].label;
 }
-
-standardNextBtn.addEventListener('click', () => {
-  if (standardNextBtn.disabled) return;
-  showWizardStep('customize');
-  customLabelInputs.liberal.focus();
-});
-
-standardCustomizeBackBtn.addEventListener('click', () => {
-  showWizardStep('players');
-  playerCountSelect.focus();
-});
-
-// ── Player-count selection ────────────────────────────────────────────────────
-
-function updateReadiness() {
-  standardNextBtn.disabled = false;
-  generateBtn.disabled = false;
-}
-
-playerCountSelect.addEventListener('change', () => {
-  playerCount = parseInt(playerCountSelect.value, 10) || 0;
-  updateReadiness();
-});
 
 // ── UI helpers ────────────────────────────────────────────────────────────────
 
@@ -345,27 +311,14 @@ function downloadPrintCardsPdf(cards) {
 // ── Generation ────────────────────────────────────────────────────────────────
 
 generateBtn.addEventListener('click', () => {
-  const n    = playerCount;
-  const hasValidCount = n >= MIN_PLAYERS && n <= MAX_PLAYERS;
-  let pairs;
+  const deck = buildDeck(DEFAULT_PLAYER_COUNT);
 
-  if (hasValidCount) {
-    const deck = buildDeck(n);
-
-    // Auto-generate anonymous player labels (Player 1 … Player N)
-    pairs = Array.from({ length: n }, (_, i) => ({
-      name: `Player ${i + 1}`,
-      role: deck[i],
-    }));
-    shuffle(pairs);
-  } else {
-    // Customization-only flow (no player count selected): one card per base role.
-    pairs = [
-      { name: 'Liberal Card', role: ROLES.LIBERAL },
-      { name: 'Fascist Card', role: ROLES.FASCIST },
-      { name: 'Hitler Card', role: ROLES.HITLER },
-    ];
-  }
+  // Auto-generate anonymous player labels (Player 1 … Player N)
+  const pairs = Array.from({ length: DEFAULT_PLAYER_COUNT }, (_, i) => ({
+    name: `Player ${i + 1}`,
+    role: deck[i],
+  }));
+  shuffle(pairs);
 
   currentPairs = pairs;
 
@@ -399,10 +352,7 @@ downloadPdfBtn.addEventListener('click', () => {
 });
 
 restartBtn.addEventListener('click', () => {
-  playerCount = 0;
   currentPairs = [];
-  playerCountSelect.value = '';
-  showWizardStep('players');
   resetCustomizationDefaults();
   Object.keys(customImageData).forEach((role) => {
     customImageData[role] = null;
@@ -418,5 +368,4 @@ restartBtn.addEventListener('click', () => {
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 resetCustomizationDefaults();
-showWizardStep('players');
-updateReadiness();
+generateBtn.disabled = false;
