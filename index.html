@@ -9,84 +9,305 @@
   <body>
     <header>
       <h1>Secret Hitler</h1>
-      <p class="subtitle" id="header-subtitle">Print &amp; Play Wizard</p>
+      <p class="subtitle" id="header-subtitle">Print, customize, and export role cards</p>
     </header>
 
     <main>
+      <p id="status-message" class="sr-only" aria-live="polite"></p>
 
-      <section id="setup-section" class="card-panel">
-        <h2>Print &amp; Play Wizard</h2>
-        <div id="wizard-step-customize">
-          <h3 class="step-heading">Customize Cards</h3>
-          <p class="hint">Edit role names or upload role images. Generates a full 10-player deck automatically.</p>
-
-          <div class="customize-body">
-            <div class="customize-grid">
-
-              <div class="customize-role">
-                <span class="customize-role-icon">🕊️</span>
-                <strong class="customize-role-label liberal-label">Liberal</strong>
-                <label class="customize-field-label">
-                  Name
-                  <input type="text" id="custom-label-liberal" placeholder="Liberal" maxlength="40" />
-                </label>
-                <label class="customize-field-label">
-                  Image
-                  <input type="file" id="custom-img-liberal" accept="image/*" class="file-input" />
-                </label>
-                <img id="custom-preview-liberal" class="custom-preview hidden" alt="Liberal role image preview" />
-              </div>
-
-              <div class="customize-role">
-                <span class="customize-role-icon">⚡</span>
-                <strong class="customize-role-label fascist-label">Fascist</strong>
-                <label class="customize-field-label">
-                  Name
-                  <input type="text" id="custom-label-fascist" placeholder="Fascist" maxlength="40" />
-                </label>
-                <label class="customize-field-label">
-                  Image
-                  <input type="file" id="custom-img-fascist" accept="image/*" class="file-input" />
-                </label>
-                <img id="custom-preview-fascist" class="custom-preview hidden" alt="Fascist role image preview" />
-              </div>
-
-              <div class="customize-role">
-                <span class="customize-role-icon">💀</span>
-                <strong class="customize-role-label hitler-label">Hitler</strong>
-                <label class="customize-field-label">
-                  Name
-                  <input type="text" id="custom-label-hitler" placeholder="Hitler" maxlength="40" />
-                </label>
-                <label class="customize-field-label">
-                  Image
-                  <input type="file" id="custom-img-hitler" accept="image/*" class="file-input" />
-                </label>
-                <img id="custom-preview-hitler" class="custom-preview hidden" alt="Hitler role image preview" />
-              </div>
-
-            </div>
-          </div>
-          <div class="results-actions">
-            <button id="generate-btn" class="btn btn-primary">Generate Print &amp; Play Cards</button>
-          </div>
+      <section id="mode-section" class="card-panel">
+        <h2>Choose a setup flow</h2>
+        <p class="hint">Use the official wizard for standard Secret Hitler decks, or switch to the custom builder to create your own variant roles and exports.</p>
+        <div class="mode-grid">
+          <button id="open-wizard-btn" class="mode-card mode-card-featured" type="button">
+            <span class="mode-badge">Official</span>
+            <span class="mode-icon">🃏</span>
+            <span class="mode-title">Print &amp; Play Wizard</span>
+            <span class="mode-desc">Choose 5–10 players, customize labels or images, save presets, and export ready-to-print role cards.</span>
+          </button>
+          <button id="open-builder-btn" class="mode-card" type="button">
+            <span class="mode-badge">Custom</span>
+            <span class="mode-icon">🧪</span>
+            <span class="mode-title">Custom Game Builder</span>
+            <span class="mode-desc">Create custom roles, theme them, reuse saved configurations, and export fronts plus optional card backs.</span>
+          </button>
         </div>
       </section>
 
-      <!-- ── Results: Role cards ──────────────────────────────────────────── -->
-      <section id="results-section" class="card-panel hidden">
-        <h2>Role Cards Preview</h2>
-        <p class="hint">
-          Your PDF has been downloaded. Tap any card to preview a role, then tap again to hide it.
-          Use the buttons below to print or re-download.
-        </p>
+      <section id="wizard-section" class="card-panel hidden">
+        <div class="section-header">
+          <button id="wizard-back-btn" class="btn-back" type="button">← Back</button>
+          <h2>Print &amp; Play Wizard</h2>
+        </div>
 
-        <div id="role-cards" class="role-grid"></div>
+        <h3 class="step-heading">1. Choose the official player count</h3>
+        <div class="input-row player-count-row">
+          <label class="customize-field-label flex-label" for="player-count">
+            Player count
+            <select id="player-count" class="count-select-input">
+              <option value="5">5 players</option>
+              <option value="6">6 players</option>
+              <option value="7">7 players</option>
+              <option value="8">8 players</option>
+              <option value="9">9 players</option>
+              <option value="10" selected>10 players</option>
+            </select>
+          </label>
+          <div id="official-role-summary" class="count-summary" aria-live="polite"></div>
+        </div>
+
+        <h3 class="step-heading">2. Save or load wizard presets</h3>
+        <div class="preset-toolbar">
+          <label class="customize-field-label flex-label" for="wizard-preset-name">
+            Preset name
+            <input type="text" id="wizard-preset-name" maxlength="40" placeholder="My official setup" />
+          </label>
+          <button id="save-wizard-preset-btn" class="btn btn-secondary" type="button">Save preset</button>
+        </div>
+        <div class="preset-toolbar preset-toolbar-secondary">
+          <label class="customize-field-label flex-label" for="wizard-preset-select">
+            Saved presets
+            <select id="wizard-preset-select" class="count-select-input"></select>
+          </label>
+          <button id="load-wizard-preset-btn" class="btn btn-secondary" type="button">Load</button>
+          <button id="delete-wizard-preset-btn" class="btn btn-secondary" type="button">Delete</button>
+        </div>
+
+        <h3 class="step-heading">3. Customize the official roles</h3>
+        <p class="hint">Upload JPG or PNG art for each role. Large images are compressed automatically before export to keep PDFs and PNG sheets manageable.</p>
+        <div class="customize-grid">
+          <div class="customize-role">
+            <span class="customize-role-icon">🕊️</span>
+            <strong class="customize-role-label liberal-label">Liberal</strong>
+            <label class="customize-field-label" for="custom-label-liberal">
+              Name
+              <input type="text" id="custom-label-liberal" placeholder="Liberal" maxlength="40" />
+            </label>
+            <label class="customize-field-label" for="custom-img-liberal">
+              Image
+              <input type="file" id="custom-img-liberal" accept="image/png,image/jpeg,image/webp" class="file-input" aria-describedby="image-help-liberal" />
+            </label>
+            <span id="image-help-liberal" class="field-help">Optional role art. Best results come from square or portrait images.</span>
+            <img id="custom-preview-liberal" class="custom-preview hidden" alt="Liberal role image preview" />
+            <button id="reset-role-liberal" class="btn btn-secondary btn-inline" type="button">Reset Liberal</button>
+          </div>
+
+          <div class="customize-role">
+            <span class="customize-role-icon">⚡</span>
+            <strong class="customize-role-label fascist-label">Fascist</strong>
+            <label class="customize-field-label" for="custom-label-fascist">
+              Name
+              <input type="text" id="custom-label-fascist" placeholder="Fascist" maxlength="40" />
+            </label>
+            <label class="customize-field-label" for="custom-img-fascist">
+              Image
+              <input type="file" id="custom-img-fascist" accept="image/png,image/jpeg,image/webp" class="file-input" aria-describedby="image-help-fascist" />
+            </label>
+            <span id="image-help-fascist" class="field-help">Optional role art. Files are optimized automatically for browser and PDF export.</span>
+            <img id="custom-preview-fascist" class="custom-preview hidden" alt="Fascist role image preview" />
+            <button id="reset-role-fascist" class="btn btn-secondary btn-inline" type="button">Reset Fascist</button>
+          </div>
+
+          <div class="customize-role">
+            <span class="customize-role-icon">💀</span>
+            <strong class="customize-role-label hitler-label">Hitler</strong>
+            <label class="customize-field-label" for="custom-label-hitler">
+              Name
+              <input type="text" id="custom-label-hitler" placeholder="Hitler" maxlength="40" />
+            </label>
+            <label class="customize-field-label" for="custom-img-hitler">
+              Image
+              <input type="file" id="custom-img-hitler" accept="image/png,image/jpeg,image/webp" class="file-input" aria-describedby="image-help-hitler" />
+            </label>
+            <span id="image-help-hitler" class="field-help">Uploads stay in your browser and can be stored inside local presets on this device.</span>
+            <img id="custom-preview-hitler" class="custom-preview hidden" alt="Hitler role image preview" />
+            <button id="reset-role-hitler" class="btn btn-secondary btn-inline" type="button">Reset Hitler</button>
+          </div>
+        </div>
+
+        <h3 class="step-heading">4. Choose export settings</h3>
+        <div class="export-grid">
+          <label class="customize-field-label" for="wizard-paper-size">
+            Paper size
+            <select id="wizard-paper-size" class="count-select-input">
+              <option value="letter" selected>US Letter</option>
+              <option value="a4">A4</option>
+            </select>
+          </label>
+          <label class="customize-field-label" for="wizard-columns">
+            Columns per page
+            <select id="wizard-columns" class="count-select-input">
+              <option value="2">2</option>
+              <option value="3" selected>3</option>
+            </select>
+          </label>
+          <label class="customize-field-label" for="wizard-rows">
+            Rows per page
+            <select id="wizard-rows" class="count-select-input">
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+            </select>
+          </label>
+          <label class="customize-field-label" for="wizard-back-label">
+            Card back title
+            <input type="text" id="wizard-back-label" maxlength="40" value="Secret Hitler" />
+          </label>
+        </div>
+        <div class="export-toggle-grid">
+          <label><input type="checkbox" id="wizard-crop-marks" /> Include crop marks</label>
+          <label><input type="checkbox" id="wizard-include-backs" /> Add card backs</label>
+          <label><input type="checkbox" id="wizard-duplex" checked /> Mirror backs for duplex printing</label>
+          <label for="wizard-png-scale">PNG quality
+            <select id="wizard-png-scale" class="count-select-input count-select-inline">
+              <option value="1">Standard</option>
+              <option value="2" selected>High</option>
+              <option value="3">Very high</option>
+            </select>
+          </label>
+        </div>
 
         <div class="results-actions">
-          <button id="download-pdf-btn" class="btn btn-secondary">⬇ Download PDF</button>
-          <button id="print-btn" class="btn btn-secondary">🖨 Print Cards</button>
-          <button id="restart-btn" class="btn btn-secondary">↩ Start Over</button>
+          <button id="generate-btn" class="btn btn-primary" type="button">Generate official role cards</button>
+        </div>
+      </section>
+
+      <section id="builder-section" class="card-panel hidden">
+        <div class="section-header">
+          <button id="builder-back-btn" class="btn-back" type="button">← Back</button>
+          <h2>Custom Game Builder</h2>
+        </div>
+
+        <h3 class="step-heading">1. Start from a variant preset or saved configuration</h3>
+        <div class="preset-toolbar preset-toolbar-secondary">
+          <label class="customize-field-label flex-label" for="builder-preset-select">
+            Variant preset
+            <select id="builder-preset-select" class="count-select-input"></select>
+          </label>
+          <button id="apply-builder-preset-btn" class="btn btn-secondary" type="button">Apply preset</button>
+        </div>
+        <div class="preset-toolbar">
+          <label class="customize-field-label flex-label" for="builder-config-name">
+            Saved configuration name
+            <input type="text" id="builder-config-name" maxlength="40" placeholder="My house rules" />
+          </label>
+          <button id="save-builder-config-btn" class="btn btn-secondary" type="button">Save configuration</button>
+        </div>
+        <div class="preset-toolbar preset-toolbar-secondary">
+          <label class="customize-field-label flex-label" for="builder-config-select">
+            Saved configurations
+            <select id="builder-config-select" class="count-select-input"></select>
+          </label>
+          <button id="load-builder-config-btn" class="btn btn-secondary" type="button">Load</button>
+          <button id="delete-builder-config-btn" class="btn btn-secondary" type="button">Delete</button>
+        </div>
+
+        <h3 class="step-heading">2. Define custom roles</h3>
+        <p class="hint">Mix labels, icons, descriptions, counts, custom art, and theme colors. Each role can be edited later from the list.</p>
+        <div class="custom-role-form-grid">
+          <label class="customize-field-label" for="builder-role-key">
+            Role key
+            <input type="text" id="builder-role-key" maxlength="30" placeholder="shadow-agent" />
+          </label>
+          <label class="customize-field-label" for="builder-role-label">
+            Display name
+            <input type="text" id="builder-role-label" maxlength="40" placeholder="Shadow Agent" />
+          </label>
+          <label class="customize-field-label" for="builder-role-icon">
+            Icon
+            <input type="text" id="builder-role-icon" class="icon-input" maxlength="3" placeholder="🕵️" />
+          </label>
+          <label class="customize-field-label" for="builder-role-count">
+            Card count
+            <input type="text" id="builder-role-count" class="count-input" value="1" inputmode="numeric" />
+          </label>
+          <label class="customize-field-label" for="builder-role-theme">
+            Theme
+            <select id="builder-role-theme" class="count-select-input">
+              <option value="custom-0">Blue</option>
+              <option value="custom-1">Red</option>
+              <option value="custom-2">Green</option>
+              <option value="custom-3">Purple</option>
+              <option value="custom-4">Amber</option>
+            </select>
+          </label>
+          <label class="customize-field-label" for="builder-role-image">
+            Role art
+            <input type="file" id="builder-role-image" accept="image/png,image/jpeg,image/webp" class="file-input" />
+          </label>
+          <label class="customize-field-label custom-role-description" for="builder-role-desc">
+            Role description
+            <input type="text" id="builder-role-desc" maxlength="100" placeholder="What should this role try to achieve?" />
+          </label>
+        </div>
+        <img id="builder-role-image-preview" class="custom-preview hidden builder-image-preview" alt="Custom role image preview" />
+        <div class="results-actions compact-actions">
+          <button id="builder-save-role-btn" class="btn btn-secondary" type="button">Add role</button>
+          <button id="builder-cancel-edit-btn" class="btn btn-secondary hidden" type="button">Cancel edit</button>
+        </div>
+        <div class="builder-list-header">
+          <strong>Current custom deck</strong>
+          <span id="builder-card-total" class="role-count-badge">0 cards</span>
+        </div>
+        <ul id="custom-role-list" class="custom-role-list"></ul>
+
+        <h3 class="step-heading">3. Configure export settings</h3>
+        <div class="export-grid">
+          <label class="customize-field-label" for="builder-paper-size">
+            Paper size
+            <select id="builder-paper-size" class="count-select-input">
+              <option value="letter" selected>US Letter</option>
+              <option value="a4">A4</option>
+            </select>
+          </label>
+          <label class="customize-field-label" for="builder-columns">
+            Columns per page
+            <select id="builder-columns" class="count-select-input">
+              <option value="2">2</option>
+              <option value="3" selected>3</option>
+            </select>
+          </label>
+          <label class="customize-field-label" for="builder-rows">
+            Rows per page
+            <select id="builder-rows" class="count-select-input">
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+            </select>
+          </label>
+          <label class="customize-field-label" for="builder-back-label">
+            Card back title
+            <input type="text" id="builder-back-label" maxlength="40" value="Variant Deck" />
+          </label>
+        </div>
+        <div class="export-toggle-grid">
+          <label><input type="checkbox" id="builder-crop-marks" /> Include crop marks</label>
+          <label><input type="checkbox" id="builder-include-backs" checked /> Add card backs</label>
+          <label><input type="checkbox" id="builder-duplex" checked /> Mirror backs for duplex printing</label>
+          <label for="builder-png-scale">PNG quality
+            <select id="builder-png-scale" class="count-select-input count-select-inline">
+              <option value="1">Standard</option>
+              <option value="2" selected>High</option>
+              <option value="3">Very high</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="results-actions">
+          <button id="generate-custom-btn" class="btn btn-primary" type="button">Generate custom role cards</button>
+        </div>
+      </section>
+
+      <section id="results-section" class="card-panel hidden" aria-labelledby="results-title">
+        <div class="section-header">
+          <button id="results-back-btn" class="btn-back" type="button">← Back to setup</button>
+          <h2 id="results-title">Role Cards Preview</h2>
+        </div>
+        <p id="results-summary" class="hint">Your deck is ready. Use the buttons below to print, download a PDF, or export PNG sheets.</p>
+        <div id="role-cards" class="role-grid" tabindex="-1"></div>
+        <div class="results-actions sticky-actions">
+          <button id="download-pdf-btn" class="btn btn-secondary" type="button">⬇ Download PDF</button>
+          <button id="download-png-btn" class="btn btn-secondary" type="button">🖼 Download PNG Sheets</button>
+          <button id="print-btn" class="btn btn-secondary" type="button">🖨 Print Cards</button>
+          <button id="restart-btn" class="btn btn-secondary" type="button">↩ Start Over</button>
         </div>
       </section>
     </main>
@@ -94,20 +315,19 @@
     <footer>
       <p>
         Based on the
-        <a href="https://www.secrethitler.com/" target="_blank" rel="noopener noreferrer"
-          >Secret Hitler</a
-        >
+        <a href="https://www.secrethitler.com/" target="_blank" rel="noopener noreferrer">Secret Hitler</a>
         board game by Goat, Wolf &amp; Cabbage.
       </p>
     </footer>
 
-    <!-- Print layout: hidden on screen, revealed by @media print -->
     <div id="print-section">
       <div class="print-page-title">Secret Hitler – Print &amp; Play Role Cards</div>
-      <div id="print-cards" class="print-grid"></div>
+      <div id="print-cards"></div>
     </div>
 
     <script src="lib.js"></script>
+    <script src="ui.js"></script>
+    <script src="exporters.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
     <script src="script.js"></script>
   </body>

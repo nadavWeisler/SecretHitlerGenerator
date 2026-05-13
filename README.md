@@ -1,32 +1,21 @@
 # Secret Hitler – Game Generator
 
-A lightweight, single-page web app for generating printable role cards for [Secret Hitler](https://www.secrethitler.com/).
+A lightweight, single-page web app for generating printable role cards for [Secret Hitler](https://www.secrethitler.com/) and custom hidden-role variants.
 
 ## Live site
 
 https://nadavweisler.github.io/SecretHitlerGenerator/
 
-## Screenshots
-
-### Home screen
-
-![Secret Hitler Generator home screen](https://github.com/user-attachments/assets/10cdcad8-39e3-4c4d-8cc5-759dd97bb6be)
-
-### Print & Play Wizard
-
-![Print & Play Wizard step](https://github.com/user-attachments/assets/898c5094-973a-4596-8d08-523182b83604)
-
 ## Features
 
-- One-step wizard: customize role labels/images; a full 10-player deck is generated automatically
-- Roles are distributed according to the official rules and shuffled randomly
-- Cards are labelled **Player 1 … Player N** — no names required
-- Optionally customize role names and role images before generating
-- PDF is downloaded automatically after generation; re-download or print anytime
-- Tap a card in the on-screen preview to reveal the role privately; tap again to hide
-- No server or build step required for usage — just open `index.html` in any modern browser
+- **Official Print & Play Wizard** for the official 5–10 player Secret Hitler role distribution
+- Role customization with editable labels, optimized image uploads, per-role resets, and saved local presets
+- **Custom Game Builder** for defining custom roles, counts, icons, descriptions, art, and print themes
+- Variant presets plus re-openable saved local configurations for house rules and experimental decks
+- Export options for **US Letter / A4**, 2–3 column layouts, optional crop marks, optional card backs, duplex-friendly back ordering, PDF download, PNG sheet download, and direct printing
+- Accessible on-screen previews with keyboard-reveal support and mobile-friendly action layouts
 
-## Role distribution
+## Official role distribution
 
 | Players | Liberals | Fascists | Hitler |
 |---------|----------|----------|--------|
@@ -40,31 +29,32 @@ https://nadavweisler.github.io/SecretHitlerGenerator/
 ## Usage
 
 1. Clone or download this repository.
-2. Open `index.html` in a web browser (no server required).
-3. Customize role names or upload custom images, then click **Generate Print & Play Cards**.  
-   The generator always builds the official 10-player deck for you.
-4. A PDF is downloaded automatically. Use **🖨 Print Cards** to print directly, or **⬇ Download PDF** to save again.
-5. Use **↩ Start Over** to reset the wizard and all customizations.
+2. Open `index.html` in a modern browser.
+3. Choose either:
+   - **Print & Play Wizard** for official Secret Hitler decks, or
+   - **Custom Game Builder** for your own variant roles.
+4. Customize labels, art, layouts, and export settings.
+5. Generate cards, then print them directly or download PDF / PNG sheet exports.
 
 ## Files
 
-| File               | Description                              |
-|--------------------|------------------------------------------|
-| `index.html`       | App shell and markup                     |
-| `style.css`        | Styling                                  |
-| `script.js`        | DOM interactions and PDF generation      |
-| `lib.js`           | Pure game logic utilities                |
-| `tests/lib.test.js`| Jest tests for pure game logic           |
+| File | Description |
+|------|-------------|
+| `index.html` | App shell and UI sections |
+| `style.css` | Shared screen and print styling |
+| `lib.js` | Pure game/deck/data helpers |
+| `ui.js` | DOM rendering helpers for previews and print layouts |
+| `exporters.js` | PDF / PNG export helpers and print-page layout logic |
+| `script.js` | App state, browser events, presets, and flow orchestration |
+| `tests/` | Jest coverage for logic, export helpers, and UI-oriented flows |
 
 ## Development
 
 ### Running tests
 
-Pure game-logic is covered by [Jest](https://jestjs.io/) unit tests:
-
 ```bash
-npm install   # install dev-dependencies (Jest)
-npm test      # run all tests with coverage report
+npm install
+npm test
 ```
 
 ### CI / CD
@@ -73,18 +63,18 @@ Two GitHub Actions workflows keep the project healthy:
 
 | Workflow | File | Trigger |
 |----------|------|---------|
-| **CI** – runs unit tests | `.github/workflows/ci.yml` | Every push / pull-request |
+| **CI** – runs Jest tests | `.github/workflows/ci.yml` | Every push / pull request |
 | **Deploy** – publishes to GitHub Pages | `.github/workflows/deploy.yml` | Push to `main` |
 
-**CI** steps:
-1. Checks out the code
-2. Installs Node.js 20 and dependencies via `npm ci`
-3. Runs `npm test` (Jest with coverage)
+### Release process
 
-**Deploy** steps:
-1. Checks out the code
-2. Uploads the repository root as a Pages artifact
-3. Deploys to GitHub Pages
+1. Make changes on a branch and run `npm test` locally.
+2. Open a pull request and wait for the **CI** workflow to pass.
+3. Merge to `main`.
+4. Confirm the **Deploy** workflow publishes the latest `main` branch to GitHub Pages.
+5. Record user-facing changes in `CHANGELOG.md`.
 
-> **Enabling GitHub Pages:** In the repository **Settings → Pages**, set the source to
-> **GitHub Actions** so the deploy workflow has permission to publish.
+## Roadmap and planning
+
+- `ROADMAP.md` tracks planned product work in-repo.
+- Mirror roadmap items into GitHub issues and milestones when triaging future work.

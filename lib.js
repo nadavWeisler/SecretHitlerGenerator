@@ -41,24 +41,26 @@ const ROLES = {
 
 const ROLE_META = {
   [ROLES.LIBERAL]: {
-    label:    'Liberal',
-    icon:     '🕊️',
-    desc:     'Enact 5 Liberal policies or assassinate Hitler to win.',
+    label: 'Liberal',
+    icon: '🕊️',
+    desc: 'Enact 5 Liberal policies or assassinate Hitler to win.',
     cssClass: 'liberal',
   },
   [ROLES.FASCIST]: {
-    label:    'Fascist',
-    icon:     '⚡',
-    desc:     'Enact 6 Fascist policies or elect Hitler Chancellor to win.',
+    label: 'Fascist',
+    icon: '⚡',
+    desc: 'Enact 6 Fascist policies or elect Hitler Chancellor to win.',
     cssClass: 'fascist',
   },
   [ROLES.HITLER]: {
-    label:    'Hitler',
-    icon:     '💀',
-    desc:     'Appear innocent. Get elected Chancellor after 3 Fascist policies to win.',
+    label: 'Hitler',
+    icon: '💀',
+    desc: 'Appear innocent. Get elected Chancellor after 3 Fascist policies to win.',
     cssClass: 'hitler',
   },
 };
+
+const CUSTOM_THEME_CLASSES = ['custom-0', 'custom-1', 'custom-2', 'custom-3', 'custom-4'];
 
 // ── Pure helpers ─────────────────────────────────────────────────────────────
 
@@ -97,12 +99,36 @@ function buildDeck(count) {
  * @returns {string}
  */
 function escapeHtml(str) {
-  return str
+  return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+/**
+ * Convert a deck array into anonymous player-role pairings.
+ * @param {string[]} deck
+ * @param {string} [playerLabelPrefix]
+ * @returns {Array<{name: string, role: string}>}
+ */
+function buildNamedPairs(deck, playerLabelPrefix) {
+  const prefix = (typeof playerLabelPrefix === 'string' && playerLabelPrefix.trim()) || 'Player';
+  return deck.map((role, index) => ({
+    name: `${prefix} ${index + 1}`,
+    role,
+  }));
+}
+
+/**
+ * Build shuffled anonymous player-role pairings for the official game.
+ * @param {number} count
+ * @param {string} [playerLabelPrefix]
+ * @returns {Array<{name: string, role: string}>}
+ */
+function buildOfficialPairs(count, playerLabelPrefix) {
+  return buildNamedPairs(buildDeck(count), playerLabelPrefix);
 }
 
 /**
@@ -118,18 +144,18 @@ function escapeHtml(str) {
  */
 function buildPrintCards(pairs, customMeta, baseMeta) {
   const overrides = customMeta || {};
-  const base_meta = baseMeta || ROLE_META;
+  const baseMetaLookup = baseMeta || ROLE_META;
   return pairs.map(({ name, role }) => {
-    const base   = base_meta[role] || {};
+    const base = baseMetaLookup[role] || {};
     const custom = overrides[role] || {};
     return {
       playerName: name,
       role,
-      label:    (typeof custom.label === 'string' && custom.label.trim()) ? custom.label.trim() : (base.label || role),
-      icon:     base.icon || '🎭',
-      desc:     base.desc || '',
+      label: (typeof custom.label === 'string' && custom.label.trim()) ? custom.label.trim() : (base.label || role),
+      icon: base.icon || '🎭',
+      desc: base.desc || '',
       cssClass: base.cssClass || 'custom-0',
-      imageUrl: custom.imageUrl || null,
+      imageUrl: custom.imageUrl || base.imageUrl || null,
     };
   });
 }
@@ -151,20 +177,85 @@ function buildCustomDeck(roleDefs) {
   return shuffle(deck);
 }
 
+/**
+ * Normalize custom role definitions so they are safe to render/export.
+ * @param {Array<Object>} roleDefs
+ * @returns {Array<{key: string, label: string, icon: string, desc: string, count: number, cssClass: string, imageUrl: string|null}>}
+ */
+function normalizeRoleDefs(roleDefs) {
+  const seen = new Set();
+  return (roleDefs || []).reduce((acc, roleDef, index) => {
+    const rawKey = typeof roleDef.key === 'string' ? roleDef.key.trim() : '';
+    const rawLabel = typeof roleDef.label === 'string' ? roleDef.label.trim() : '';
+    const key = rawKey || `role-${index + 1}`;
+    if (seen.has(key)) {
+      return acc;
+    }
+    seen.add(key);
+
+    const count = Math.max(0, Number.parseInt(roleDef.count, 10) || 0);
+    if (!count) {
+      return acc;
+    }
+
+    acc.push({
+      key,
+      label: rawLabel || key,
+      icon: (typeof roleDef.icon === 'string' && roleDef.icon.trim()) || '🎭',
+      desc: (typeof roleDef.desc === 'string' && roleDef.desc.trim()) || 'A custom role for your Secret Hitler variant.',
+      count,
+      cssClass: CUSTOM_THEME_CLASSES.includes(roleDef.cssClass) ? roleDef.cssClass : CUSTOM_THEME_CLASSES[index % CUSTOM_THEME_CLASSES.length],
+      imageUrl: typeof roleDef.imageUrl === 'string' && roleDef.imageUrl.trim() ? roleDef.imageUrl : null,
+    });
+    return acc;
+  }, []);
+}
+
+/**
+ * Convert normalized custom role definitions into ROLE_META-like lookup data.
+ * @param {Array<{key: string, label: string, icon: string, desc: string, count: number, cssClass: string, imageUrl: string|null}>} roleDefs
+ * @returns {Object}
+ */
+function buildCustomRoleMeta(roleDefs) {
+  return normalizeRoleDefs(roleDefs).reduce((acc, roleDef) => {
+    acc[roleDef.key] = {
+      label: roleDef.label,
+      icon: roleDef.icon,
+      desc: roleDef.desc,
+      cssClass: roleDef.cssClass,
+      imageUrl: roleDef.imageUrl,
+    };
+    return acc;
+  }, {});
+}
+
+const publicApi = {
+  MIN_PLAYERS,
+  MAX_PLAYERS,
+  ROLE_TABLE,
+  ROLES,
+  ROLE_META,
+  CUSTOM_THEME_CLASSES,
+  shuffle,
+  buildDeck,
+  buildNamedPairs,
+  buildOfficialPairs,
+  buildCustomDeck,
+  normalizeRoleDefs,
+  buildCustomRoleMeta,
+  escapeHtml,
+  buildPrintCards,
+};
+
 // ── Module export (Node.js / Jest) / global exposure (browser) ───────────────
 
 /* istanbul ignore next */
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    MIN_PLAYERS,
-    MAX_PLAYERS,
-    ROLE_TABLE,
-    ROLES,
-    ROLE_META,
-    shuffle,
-    buildDeck,
-    buildCustomDeck,
-    escapeHtml,
-    buildPrintCards,
-  };
+  module.exports = publicApi;
+}
+
+/* istanbul ignore next */
+if (typeof globalThis !== 'undefined') {
+  Object.assign(globalThis, publicApi);
+  globalThis.SecretHitlerLib = publicApi;
 }
